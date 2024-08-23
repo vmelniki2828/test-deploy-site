@@ -7,7 +7,7 @@ RUN npm build
 
 FROM nginx:stable-alpine
 
-COPY --form=build /dist /usr/share/nginx/html
+COPY --form=build /build /usr/share/nginx/html
 COPY --from=build nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 3000
 
