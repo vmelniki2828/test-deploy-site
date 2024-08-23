@@ -1,0 +1,30 @@
+export const getUser = (state) => state.auth.user;
+export const isAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectIsRefreshing = (state) => state.auth.isRefreshing;
+export const selectRefreshToken = (state) => state.auth.refreshToken;
+export const selectAccessToken = (state) => state.auth.accessToken;
+
+export const selectUserUsername = (state) => state.user.username;
+export const selectUserBalance = (state) => state.user.balance;
+export const selectUserType = (state) => state.user.type;
+export const selectUserDepartment = (state) => state.user.department;
+export const selectUserGrade = (state) => state.user.grade;
+export const selectUserCurrency = (state) => state.user.currency;
+export const selectUserConfig = (state) => state.user.config;
+export const selectUserShift = (state) => state.user.shift;
+export const selectUserIsUser = (state) => state.user.isUser;
+export const selectUserisRequest = (state) => state.user.isRequest;
+export const selectUserExpiredTime = (state) => state.user.expiredTime;
+export const selectUserPhoto = (state) => state.user.photo;
+
+export const selectUserUsernameProfile = (state) => state.profile.username;
+export const selectUserFirstNameProfile = (state) => state.profile.first_name;
+export const selectUserLastNameProfile = (state) => state.profile.last_name;
+export const selectUserEmailProfile = (state) => state.profile.email;
+export const selectUserWorkingTelegramlProfile = (state) => state.profile.working_telegram;
+export const selectUserPersonalTelegramProfile = (state) => state.profile.personal_telegram;
+export const selectUserPhoneNumberProfile = (state) => state.profile.phone_number;
+export const selectUserСountryProfile = (state) => state.profile.country;
+export const selectUserDateJoinedProfile = (state) => state.profile.date_joined;
+export const selectUserPaymetMethodProfile = (state) => state.profile.payment_method;
+export const selectUserPhotoProfile = (state) => state.profile.photo;
