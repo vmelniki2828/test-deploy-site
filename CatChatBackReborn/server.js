@@ -30,7 +30,7 @@ app.use(
 );
 
 mongoose
-  .connect("mongodb://95.164.33.221:27017/chat", {
+  .connect("mongodb://127.0.0.1:27017/chat", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
