@@ -36,7 +36,7 @@ const LoginForm = () => {
           await dispatch(getCurrentUserThunk());
           // await dispatch(getUserProfileThunk());
         } else {
-          console.log("Error")
+          console.log("Error", e )
         }
       });
   };
