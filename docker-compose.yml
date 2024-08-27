@@ -19,15 +19,11 @@ services:
   backend:
     build:
       context: ./CatChatBackReborn
-    ports:
-      - "8000:8000"
     networks:
       - dev
 
-  frontend:
+  frontend: 
     build:
       context: ./CatChat
-    ports:
-      - "3000:80"
     networks:
       - dev
