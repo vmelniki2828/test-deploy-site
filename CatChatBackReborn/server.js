@@ -9,6 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const managersRoutes = require("./routes/managersRoutes");
 const roomRoutes = require("./routes/roomsRoutes");
+const authRoutes = require('./routes/authRoutes');
 const { default: mongoose } = require("mongoose");
 const ArchivedRoom = require("./models/archivedRoom");
 const io = socketIo(server, {
@@ -45,6 +46,7 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use("/api", managersRoutes);
 app.use("/api", roomRoutes);
+app.use("/api", authRoutes);
 
 // let managers = []; // Список доступных менеджеров
 // let users = {}; // Соответствие пользователя и менеджера

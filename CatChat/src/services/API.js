@@ -14,9 +14,8 @@ export const getArchivedRooms = (uname) => {
 };
 
 
-axios.defaults.baseURL = `http${
-process.env.REACT_APP_SECURE === 'true' ? 's' : ''
-  }://${process.env.REACT_APP_BACKEND_URL}/api`;
+axios.defaults.baseURL = 'http://localhost:3001/';
+
   
   export const token = {
     set(token) {
