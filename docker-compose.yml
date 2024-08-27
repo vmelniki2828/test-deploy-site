@@ -19,15 +19,25 @@ services:
   backend:
     build:
       context: ./CatChatBackReborn
-    ports:
-      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/chat
     networks:
       - dev
+    depends_on:
+      - mongo
 
   frontend:
     build:
       context: ./CatChat
-    ports:
-      - "3000:80"
     networks:
       - dev
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - dev
+
+volumes:
+  mongo-data:
