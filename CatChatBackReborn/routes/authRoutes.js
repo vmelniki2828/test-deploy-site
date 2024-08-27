@@ -7,7 +7,7 @@ const app = express();
 
 // Настройка CORS
 app.use(cors({
-  origin: 'http://localhost:3000', // Укажите здесь ваш фронтенд домен
+  origin: 'http://95.164.33.221', // Укажите здесь ваш фронтенд домен
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true, // Установите true, если ваш фронтенд использует куки
 }));
