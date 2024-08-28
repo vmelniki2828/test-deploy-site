@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-export const socket = io('http://localhost', {
+export const socket = io('http://95.164.33.221', {
   transports: ['websocket', 'polling'],
   withCredentials: true,
   reconnection: true, // Включает автоматическое восстановление соединения
@@ -14,7 +14,7 @@ export const getArchivedRooms = (uname) => {
 };
 
 
-axios.defaults.baseURL = 'http://localhost/';
+axios.defaults.baseURL = 'http://95.164.33.221/';
 
   
   export const token = {
