@@ -14,7 +14,7 @@ export const getArchivedRooms = (uname) => {
 };
 
 
-axios.defaults.baseURL = 'http://95.164.33.221/';
+axios.defaults.baseURL = 'http://95.164.33.221/api';
 
   
   export const token = {
