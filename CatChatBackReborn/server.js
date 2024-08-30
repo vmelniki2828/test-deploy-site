@@ -13,7 +13,7 @@ const { default: mongoose } = require("mongoose");
 const ArchivedRoom = require("./models/archivedRoom");
 const io = socketIo(server, {
   cors: {
-    origin: "http://95.164.33.221", // Укажите правильный адрес вашего клиента (фронтенда)
+    origin: "http://95.164.33.221:3000", // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
     allowedHeaders: ["Content-Type"],
     credentials: true,
@@ -22,7 +22,7 @@ const io = socketIo(server, {
 
 app.use(
   cors({
-    origin: "http://95.164.33.221", // Укажите правильный адрес вашего клиента (фронтенда)
+    origin: "http://95.164.33.221:3000", // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
     allowedHeaders: ["Content-Type"],
     credentials: true,
@@ -238,7 +238,7 @@ socket.on("get_archived_rooms", async ({ username }) => {
   }
 });});
 
-// const PORT = process.env.PORT || 3001;
-// server.listen(PORT, () => {
-//   console.log(`Server is running on port ${PORT}`);
-// });
+const PORT = 8000;
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
