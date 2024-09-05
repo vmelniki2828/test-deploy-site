@@ -12,9 +12,7 @@ app.use(cors({
   credentials: true, // Установите true, если ваш фронтенд использует куки
 }));
 // Установите базовый URL для запросов
-axios.defaults.baseURL = `http${
-  process.env.REACT_APP_SECURE === 'true' ? 's' : ''
-}://${process.env.REACT_APP_BACKEND_URL}/api`;
+axios.defaults.baseURL = `https://test.cat-tools.com/api`;
 
 app.use(express.json());
 
