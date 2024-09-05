@@ -27,5 +27,15 @@ router.post('/token/login', async (req, res) => {
   }
 });
 
+router.get('/user', async (req, res) => {
+  try {
+    const { data } = await axios.get('user', req.body);
+    res.json(data);
+  } catch (error) {
+    console.error('Ошибка при авторизации:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Ошибка при авторизации' });
+  }
+});
+
 
 module.exports = router;
