@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const router = express.Router();
 
 const app = express();
 
@@ -10,17 +11,15 @@ app.use(cors({
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true, // Установите true, если ваш фронтенд использует куки
 }));
-
-// Middleware для обработки JSON
-app.use(express.json());
-
 // Установите базовый URL для запросов
 axios.defaults.baseURL = `http${
   process.env.REACT_APP_SECURE === 'true' ? 's' : ''
 }://${process.env.REACT_APP_BACKEND_URL}/api`;
 
+app.use(express.json());
+
 // Маршрут для авторизации (логина)
-authRoutes.post('/token/login', async (req, res) => {
+router.post('/token/login', async (req, res) => {
   try {
     const { data } = await axios.post('token/login', req.body);
     res.json(data);
@@ -29,3 +28,6 @@ authRoutes.post('/token/login', async (req, res) => {
     res.status(500).json({ error: 'Ошибка при авторизации' });
   }
 });
+
+
+module.exports = router;
