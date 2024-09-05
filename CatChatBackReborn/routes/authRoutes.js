@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const authRoutes = require('./path-to-your-router-file'); // Убедитесь, что путь к файлу правильный
 
 const app = express();
 
