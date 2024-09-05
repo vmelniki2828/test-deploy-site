@@ -39,7 +39,7 @@ const Header = () => {
 
   const handleManagers = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/managers`);
+      const response = await axios.get(`http://95.164.33.221:8000/api/managers`);
       setAllManagers(response.data);
     } catch (error) {
       console.error('Ошибка при выполнении запроса:', error);
@@ -49,7 +49,7 @@ const Header = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/rooms/${uname}`
+        `http://95.164.33.221:8000/api/rooms/${uname}`
       );
       setChats(response.data);
     } catch (error) {
@@ -60,7 +60,7 @@ const Header = () => {
   const handleManager = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/managers/${uname}`
+        `http://95.164.33.221:8000/api/managers/${uname}`
       );
       setManager(response.data); // Обновил состояние менеджера
     } catch (error) {
@@ -91,7 +91,7 @@ const Header = () => {
       socket.emit('join_manager', username.trim());
     }
 
-    fetch('http://localhost:3001/api/managers')
+    fetch('http://95.164.33.221:8000/api/managers')
       .then(response => {
         if (!response.ok) {
           throw new Error(
@@ -123,7 +123,7 @@ const Header = () => {
   const handleReplaceManager = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/rooms/${currentChat?.roomId}/replace-manager`,
+        `http://95.164.33.221:8000/api/rooms/${currentChat?.roomId}/replace-manager`,
         {
           method: 'PUT',
           headers: {
