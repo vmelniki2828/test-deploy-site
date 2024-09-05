@@ -7,7 +7,7 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "3000:3000"  # Измените порт на 3000
+      - "3000:3000"  # Прокидываем порт 3000 наружу
     volumes:
       - './nginx.conf:/etc/nginx/nginx.conf'
     depends_on:
@@ -21,6 +21,8 @@ services:
       context: ./CatChatBackReborn
     environment:
       - MONGO_URI=mongodb://mongo:27017/chat
+    ports:
+      - "8000:8000"  # Бэкенд работает на 8000 порту
     networks:
       - dev
     depends_on:
@@ -29,6 +31,8 @@ services:
   frontend:
     build:
       context: ./CatChat
+    expose:
+      - "80"  # Фронтенд работает на порту 80 внутри сети
     networks:
       - dev
 
