@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   TextContainer,
@@ -10,8 +10,8 @@ import {
   LogForm,
   ShowBtn,
   LogoSpan,
-} from "./LoginForm.styled";
-import { loginThunk } from "../../redux/auth/authActions";
+} from './LoginForm.styled';
+import { loginThunk } from '../../redux/auth/authActions';
 import { getCurrentUserThunk } from '../../redux/user/userActions';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { selectAccessToken } from '../../redux/selectors';
@@ -22,31 +22,36 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const error = useSelector(state => state.auth.error);
-  const token = useSelector(selectAccessToken)
+  const token = useSelector(selectAccessToken);
 
-  const handleTogglePassword = (e) => {
+  useEffect(() => {
+    console.log(token);
+  }, [token]);
+
+  const handleTogglePassword = e => {
     e.preventDefault();
     e.stopPropagation();
-    setShowPassword(!showPassword); 
+    setShowPassword(!showPassword);
   };
 
   const handleLogin = async e => {
     e.preventDefault();
-      const credentials = { username, password };
-      dispatch(loginThunk(credentials)).then( async res => {
-        if (res.meta.requestStatus === "fulfilled") {
-          await dispatch(getCurrentUserThunk());
-          // await dispatch(getUserProfileThunk());
-        } else {
-          console.log("Error", e )
-        }
-      });
+    const credentials = { username, password };
+    dispatch(loginThunk(credentials)).then(async res => {
+      if (res.meta.requestStatus === 'fulfilled') {
+        await dispatch(getCurrentUserThunk(token));
+        // await dispatch(getUserProfileThunk());
+      } else {
+        console.log('Error', e);
+      }
+    });
   };
 
   return (
     <LoginWrap>
       <TextContainer>
-        <LogoText><LogoSpan>G</LogoSpan>
+        <LogoText>
+          <LogoSpan>G</LogoSpan>
           DESK
         </LogoText>
       </TextContainer>
@@ -61,14 +66,14 @@ const LoginForm = () => {
           />
         </InputWrap>
         <InputWrap>
-          <label >Password</label>
+          <label>Password</label>
           <FormInput
             style={{ borderColor: error ? '#FF5454' : '#717171' }}
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
-          <ShowBtn onClick={(e) => handleTogglePassword(e)}>
+          <ShowBtn onClick={e => handleTogglePassword(e)}>
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </ShowBtn>
         </InputWrap>
