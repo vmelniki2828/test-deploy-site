@@ -22,6 +22,11 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const error = useSelector(state => state.auth.error);
+  const token = useSelector(state => state.auth.accessToken);
+
+  useEffect(() => {
+    console.log(token);
+  }, [token]);
 
   const handleTogglePassword = e => {
     e.preventDefault();
