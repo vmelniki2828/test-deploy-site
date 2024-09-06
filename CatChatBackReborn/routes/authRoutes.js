@@ -30,13 +30,20 @@ router.post('/token/login', async (req, res) => {
 
 router.get('/user', async (req, res) => {
   try {
-    console.log(req.body)
-    const { data } = await axios.get('user', req.body);
-    console.log(data)
+    const token = req.headers.authorization; 
+    if (!token) {
+      return res.status(401).json({ error: 'Токен не передан' });
+    }
+    const { data } = await axios.get('user', {
+      headers: {
+        Authorization: token, 
+      },
+    });
+
     res.json(data);
   } catch (error) {
     console.error('Ошибка при авторизации:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Ошибка при авторизации' });
+    res.status(500).json({ error: 'Ошибка при получении данных пользователя' });
   }
 });
 
