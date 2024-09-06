@@ -22,11 +22,6 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const error = useSelector(state => state.auth.error);
-  const token = useSelector(selectAccessToken);
-
-  useEffect(() => {
-    console.log(token);
-  }, [token]);
 
   const handleTogglePassword = e => {
     e.preventDefault();
@@ -39,8 +34,7 @@ const LoginForm = () => {
     const credentials = { username, password };
     dispatch(loginThunk(credentials)).then(async res => {
       if (res.meta.requestStatus === 'fulfilled') {
-        await dispatch(getCurrentUserThunk(token));
-        // await dispatch(getUserProfileThunk());
+        await dispatch(getCurrentUserThunk());
       } else {
         console.log('Error', e);
       }
