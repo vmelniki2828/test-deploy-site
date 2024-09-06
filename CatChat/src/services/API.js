@@ -30,6 +30,7 @@ export const loginFoo = async credentials => {
   return data;
 };
 export const getCurrentUser = async credentials => {
+  console.log(credentials)
   const { data } = await axios.get('user', {
     headers: {
       Authorization: `Bearer ${credentials}`, // Передаем токен
