@@ -32,6 +32,7 @@ router.get('/user', async (req, res) => {
   try {
     console.log(req.body)
     const { data } = await axios.get('user', req.body);
+    console.log(data)
     res.json(data);
   } catch (error) {
     console.error('Ошибка при авторизации:', error.response?.data || error.message);
