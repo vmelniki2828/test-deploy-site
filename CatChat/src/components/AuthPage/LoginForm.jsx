@@ -34,8 +34,7 @@ const LoginForm = () => {
     const credentials = { username, password };
     dispatch(loginThunk(credentials)).then(async res => {
       if (res.meta.requestStatus === 'fulfilled') {
-        console.log(res)
-        await dispatch(getCurrentUserThunk());
+        await dispatch(getCurrentUserThunk(res.payload.access));
       } else {
         console.log('Error', e);
       }
