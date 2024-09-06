@@ -23,10 +23,6 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const error = useSelector(state => state.auth.error);
 
-  useEffect(() => {
-    console.log(token);
-  }, [token]);
-
   const handleTogglePassword = e => {
     e.preventDefault();
     e.stopPropagation();
