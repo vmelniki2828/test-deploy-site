@@ -15,7 +15,7 @@ const io = socketIo(server, {
   cors: {
     origin: "http://95.164.33.221:3000", // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
-    allowedHeaders: ["Content-Type"],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   },
 });
@@ -24,7 +24,7 @@ app.use(
   cors({
     origin: "http://95.164.33.221:3000", // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
-    allowedHeaders: ["Content-Type"],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   })
 );
