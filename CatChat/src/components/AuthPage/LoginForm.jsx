@@ -14,7 +14,7 @@ import {
 import { loginThunk } from "../../redux/auth/authActions";
 import { getCurrentUserThunk } from '../../redux/user/userActions';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { selectAccessToken } from '../redux/selectors';
+import { selectAccessToken } from '../../redux/selectors';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
