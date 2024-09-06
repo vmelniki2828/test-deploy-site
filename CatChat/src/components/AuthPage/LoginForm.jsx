@@ -14,6 +14,7 @@ import {
 import { loginThunk } from "../../redux/auth/authActions";
 import { getCurrentUserThunk } from '../../redux/user/userActions';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { selectAccessToken } from '../redux/selectors';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
@@ -21,6 +22,7 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const error = useSelector(state => state.auth.error);
+  const token = useSelector(selectAccessToken)
 
   const handleTogglePassword = (e) => {
     e.preventDefault();
