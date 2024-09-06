@@ -22,6 +22,7 @@ router.post('/token/login', async (req, res) => {
   try {
     const { data } = await axios.post('token/login', req.body);
     res.json(data);
+    console.log(data);
   } catch (error) {
     console.error('Ошибка при авторизации:', error.response?.data || error.message);
     res.status(500).json({ error: 'Ошибка при авторизации' });
