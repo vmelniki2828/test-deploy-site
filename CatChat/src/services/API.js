@@ -32,7 +32,7 @@ axios.defaults.baseURL = 'http://95.164.33.221:8000/api';
     return data;
   };
   export const getCurrentUser = async credentials => {
-    const { data } = await axios.get('user', credentials);
+    const { data } = await axios.get('user', token);
     return data;
   };
   
