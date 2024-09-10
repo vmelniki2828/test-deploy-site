@@ -118,8 +118,14 @@ const Chat = ({ selectedChat }) => {
           value={message}
           onChange={e => setMessage(e.target.value)}
           placeholder="Введите сообщение"
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              sendMessage();  
+              e.preventDefault(); 
+            }
+          }}
         />
-        <SendButton onClick={sendMessage}>
+        <SendButton onClick={sendMessage} >
           Send
           <IconButton src={Vec} alt="Vec" />
         </SendButton>
