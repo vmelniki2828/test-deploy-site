@@ -130,7 +130,7 @@ io.on("connection", (socket) => {
         username: randomManager.username,
         socketId: randomManager.socketId,
       });
-      socket.emit('manager_assigned', manager);
+      socket.emit('manager_assigned', randomManager);
       await newRoom.save();
   
       io.emit("newChat", newRoom);
