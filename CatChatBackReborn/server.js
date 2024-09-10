@@ -130,6 +130,7 @@ io.on("connection", (socket) => {
         username: randomManager.username,
         socketId: randomManager.socketId,
       });
+      socket.emit('manager_assigned', manager);
       await newRoom.save();
   
       io.emit("newChat", newRoom);
@@ -236,7 +237,8 @@ socket.on("get_archived_rooms", async ({ username }) => {
   } catch (err) {
     console.error("Ошибка при получении архивированных чатов", err);
   }
-});});
+});
+});
 
 const PORT = 8000;
 server.listen(PORT, () => {
