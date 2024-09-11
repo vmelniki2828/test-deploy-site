@@ -7,7 +7,7 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "8080:80"  # Прокидываем порт 3000 наружу
+      - "3000:3000"  # Прокидываем порт 3000 наружу
     volumes:
       - './nginx.conf:/etc/nginx/nginx.conf'
     depends_on:
