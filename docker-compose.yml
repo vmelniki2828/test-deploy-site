@@ -7,7 +7,7 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "3000:3000"  # Прокидываем порт 3000 наружу
+      - "80:80"  # Прокидываем порт 80 наружу
     volumes:
       - './nginx.conf:/etc/nginx/nginx.conf'
     depends_on:
@@ -22,7 +22,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/chat
     ports:
-      - "8000:8000"  # Бэкенд работает на 8000 порту
+      - "8000:8000"
     networks:
       - dev
     depends_on:
