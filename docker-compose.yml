@@ -7,20 +7,12 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "8080:80"  # Прокидываем 80 порт наружу, чтобы фронтенд был доступен на 80 порту
+      - "8080:80"  # Прокидываем порт 3000 наружу
     volumes:
-      - './project-nginx.conf:/etc/nginx/nginx.conf'  # Используем конфигурацию Nginx для проекта
+      - './nginx.conf:/etc/nginx/nginx.conf'
     depends_on:
       - backend
       - frontend
-    networks:
-      - dev
-
-  frontend:
-    build:
-      context: ./CatChat
-    ports:
-      - "80"  # Фронтенд будет доступен на 80 порту внутри контейнера
     networks:
       - dev
 
@@ -35,6 +27,14 @@ services:
       - dev
     depends_on:
       - mongo
+
+  frontend:
+    build:
+      context: ./CatChat
+    expose:
+      - "80"  # Фронтенд работает на порту 80 внутри сети
+    networks:
+      - dev
 
   mongo:
     image: mongo:latest
