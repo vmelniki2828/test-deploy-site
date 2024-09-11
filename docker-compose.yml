@@ -7,9 +7,11 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "80:80"  # Прокидываем порт 80 наружу
+      - "443:443"  # Прокидываем HTTPS порт
+      - "80:80"  # Прокидываем HTTP порт для редиректа на HTTPS
     volumes:
       - './nginx.conf:/etc/nginx/nginx.conf'
+      - './ssl:/etc/nginx/ssl'  # Путь к SSL-сертификатам
     depends_on:
       - backend
       - frontend
