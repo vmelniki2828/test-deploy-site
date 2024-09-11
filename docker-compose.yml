@@ -31,8 +31,8 @@ services:
   frontend:
     build:
       context: ./CatChat
-    expose:
-      - "80"  # Фронтенд работает на порту 80 внутри сети
+    ports:
+      - "80:80"  # Прокидываем порт 80 наружу
     networks:
       - dev
 
