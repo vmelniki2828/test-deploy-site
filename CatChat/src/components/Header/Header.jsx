@@ -39,7 +39,7 @@ const Header = () => {
 
   const handleManagers = async () => {
     try {
-      const response = await axios.get(`http://95.164.33.221:8000/api/managers`);
+      const response = await axios.get(`https://chat.cat-tools.com/api/managers`);
       setAllManagers(response.data);
     } catch (error) {
       console.error('Ошибка при выполнении запроса:', error);
@@ -49,7 +49,7 @@ const Header = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(
-        `http://95.164.33.221:8000/api/rooms/${uname}`
+        `https://chat.cat-tools.com/api/rooms/${uname}`
       );
       setChats(response.data);
     } catch (error) {
@@ -60,7 +60,7 @@ const Header = () => {
   const handleManager = async () => {
     try {
       const response = await axios.get(
-        `http://95.164.33.221:8000/api/managers/${uname}`
+        `https://chat.cat-tools.com/api/managers/${uname}`
       );
       setManager(response.data); // Обновил состояние менеджера
     } catch (error) {
