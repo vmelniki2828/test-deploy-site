@@ -13,7 +13,7 @@ const { default: mongoose } = require("mongoose");
 const ArchivedRoom = require("./models/archivedRoom");
 const io = socketIo(server, {
   cors: {
-    origin: "http://95.164.33.221", // Укажите правильный адрес вашего клиента (фронтенда)
+    origin: "http://chat.cat-tools.com", // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -22,7 +22,7 @@ const io = socketIo(server, {
 
 app.use(
   cors({
-    origin: "http://95.164.33.221", // Укажите правильный адрес вашего клиента (фронтенда)
+    origin: "http://chat.cat-tools.com", // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
