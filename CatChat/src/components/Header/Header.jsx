@@ -123,7 +123,7 @@ const Header = () => {
   const handleReplaceManager = async () => {
     try {
       const response = await fetch(
-        `http://95.164.33.221:8000/api/rooms/${currentChat?.roomId}/replace-manager`,
+        `https://chat.cat-tools.com/api/rooms/${currentChat?.roomId}/replace-manager`,
         {
           method: 'PUT',
           headers: {
