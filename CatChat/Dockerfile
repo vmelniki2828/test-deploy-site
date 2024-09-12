@@ -13,7 +13,7 @@ FROM nginx:stable-alpine
 
 # Копируем билд в директорию Nginx для статических файлов
 COPY --from=build /app/build /usr/share/nginx/html  
-COPY ../dist /usr/share/nginx/html
+COPY ./dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
