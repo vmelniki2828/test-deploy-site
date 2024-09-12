@@ -91,7 +91,7 @@ const Header = () => {
       socket.emit('join_manager', username.trim());
     }
 
-    fetch('http://95.164.33.221:8000/api/managers')
+    fetch('https://chat.cat-tools.com/api/managers')
       .then(response => {
         if (!response.ok) {
           throw new Error(
