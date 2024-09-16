@@ -141,7 +141,21 @@ io.on("connection", (socket) => {
       socket.emit("errorCreatingRoom", "Произошла ошибка при создании комнаты.");
     }
   });
+  socket.on('rejoin_user', async ({ roomId }) => {
+    try {
+      const room = await Room.findOne({ roomId }).lean(); 
+      if (room) {
+        socket.emit('roomRejoined', room.messages);
+      } else {
+        socket.emit('error', 'Комната не найдена');
+      }
+    } catch (error) {
+      console.error('Ошибка при получении сообщений:', error);
+      socket.emit('error', 'Ошибка при получении сообщений.');
+    }
+  });
   
+
   socket.on("send_message", async (message) => {
     const { roomId, sender, messageText } = message;
     try {
