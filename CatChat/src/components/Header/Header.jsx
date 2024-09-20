@@ -52,7 +52,7 @@ const Header = ({ selectedChat }) => {
 
   const handleManagers = async () => {
     try {
-      const response = await axios.get(`https://chat.cat-tools.com/api/managers`);
+      const response = await axios.get(`http://localhost:8000/api/managers`);
       setAllManagers(response.data);
     } catch (error) {
       console.error('Ошибка при выполнении запроса:', error);
@@ -104,7 +104,7 @@ const Header = ({ selectedChat }) => {
       socket.emit('join_manager', username.trim());
     }
 
-    fetch('https://chat.cat-tools.com/api/managers')
+    fetch('http://localhost:8000/api/managers')
       .then(response => {
         if (!response.ok) {
           throw new Error(
