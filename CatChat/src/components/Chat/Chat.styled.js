@@ -5,12 +5,13 @@ export const ChatContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  height: 100vh;
-  width: 1275px;
-  min-width: 800px;
+  height: 91%;
+  width: calc(100% - 650px);
+  min-width: 500px;
   margin-left: 343px;
   position: fixed;
   box-sizing: border-box;
+  z-index: 3;
 `;
 
 export const ChatMessages = styled.div`

@@ -6,6 +6,13 @@ import {
   HeaderName,
   HeaderNameWrap,
   ChatsNameWrap,
+  Settings,
+  ModalWindow,
+  ButtonStyle,
+  SettingsStyle,
+  ManagerIcon,
+  OpenModal,
+  CloseChat,
 } from './Header.styled';
 import MainIcon from '../../images/Union.png';
 import { socket } from 'services/API';
@@ -15,13 +22,12 @@ import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal/Modal';
+import { Manager } from 'socket.io-client';
 
-const Header = () => {
+const Header = ({ selectedChat }) => {
   const uname = useSelector(selectUserUsername);
   const currentChat = useSelector(state => state.chat.currentChat);
   const [showModal, setShowModal] = useState(false);
-
-  console.log(currentChat);
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -30,8 +36,15 @@ const Header = () => {
   const [chats, setChats] = useState([]);
   const [manager, setManager] = useState(null); // Установил начальное состояние как null
   const [allManagers, setAllManagers] = useState();
+  const [openSettings, setOpenSettings] = useState(false);
 
   const [selectedOption, setSelectedOption] = useState('');
+
+  console.log(selectedChat);
+
+  const handleOpenSetting = () => {
+    setOpenSettings(prev => !prev);
+  };
 
   const handleSelectChange = event => {
     setSelectedOption(event.target.value);
@@ -49,7 +62,7 @@ const Header = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(
-        `https://chat.cat-tools.com/api/rooms/${uname}`
+        `http://localhost:8000/api/rooms/${uname}`
       );
       setChats(response.data);
     } catch (error) {
@@ -60,7 +73,7 @@ const Header = () => {
   const handleManager = async () => {
     try {
       const response = await axios.get(
-        `https://chat.cat-tools.com/api/managers/${uname}`
+        `http://localhost:8000/api/managers/${uname}`
       );
       setManager(response.data); // Обновил состояние менеджера
     } catch (error) {
@@ -123,7 +136,7 @@ const Header = () => {
   const handleReplaceManager = async () => {
     try {
       const response = await fetch(
-        `https://chat.cat-tools.com/api/rooms/${currentChat?.roomId}/replace-manager`,
+        `http://localhost:8000/api/rooms/${currentChat?.roomId}/replace-manager`,
         {
           method: 'PUT',
           headers: {
@@ -148,6 +161,11 @@ const Header = () => {
     }
   };
 
+  const handleDisconnectChat = () => {
+    const roomId = selectedChat.roomId; // Получите ID комнаты, которую нужно отключить
+    socket.emit('disconnect_chat', roomId);
+  };
+
   return (
     <HeaderConteiner>
       <HeaderIconWrap>
@@ -161,19 +179,34 @@ const Header = () => {
         <HeaderName>
           {currentChat ? currentChat?.clients?.username : ''}
         </HeaderName>
-        {manager?.manager === null ? (
-          <button onClick={() => joinChat(uname)}>Join Manager</button>
-        ) : (
-          <button onClick={() => removeManager(uname)}>Remove Manager</button>
-        )}
-        <button
-          onClick={() => {
-            openModal();
-            handleManagers();
-          }}
-        >
-          Открыть модальное окно
-        </button>
+
+        {openSettings ? (
+          <ModalWindow>
+            {manager?.manager === null ? (
+              <SettingsStyle onClick={() => joinChat(uname)}>
+                <ManagerIcon />
+                Join Manager
+              </SettingsStyle>
+            ) : (
+              <SettingsStyle onClick={() => removeManager(uname)}>
+                <ManagerIcon />
+                Remove Manager
+              </SettingsStyle>
+            )}
+            <SettingsStyle
+              onClick={() => {
+                openModal();
+                handleManagers();
+              }}
+            >
+              <OpenModal /> Открыть модальное окно
+            </SettingsStyle>
+            <SettingsStyle onClick={handleDisconnectChat}>
+              <CloseChat />
+              Отключить чат
+            </SettingsStyle>
+          </ModalWindow>
+        ) : null}
 
         <Modal show={showModal}>
           <button onClick={closeModal}>X</button>
@@ -204,6 +237,8 @@ const Header = () => {
             </div>
           )}
         </Modal>
+
+        <Settings onClick={handleOpenSetting} />
       </HeaderNameWrap>
     </HeaderConteiner>
   );

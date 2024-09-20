@@ -4,12 +4,13 @@ import Chat from 'components/Chat/Chat';
 import RightSideBarChat from 'components/RightSideBarChat/RightSideBar';
 import { ChatsPageContainer } from './ChatsPage.styled';
 
-const ChatsPage = ({ chats }) => {
+const ChatsPage = ({ chats, setCurrentChat }) => {
   const [selectedChat, setSelectedChat] = useState(null);
 
-  useEffect(() => {
+  useEffect(() => { 
+    setCurrentChat(selectedChat)
     console.log(chats);
-  }, [chats]);
+  }, [chats, selectedChat]);
 
   return (
     <ChatsPageContainer>

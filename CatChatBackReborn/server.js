@@ -13,7 +13,7 @@ const { default: mongoose } = require("mongoose");
 const ArchivedRoom = require("./models/archivedRoom");
 const io = socketIo(server, {
   cors: {
-    origin: "https://chat.cat-tools.com", // Укажите правильный адрес вашего клиента (фронтенда)
+    origin: "http://localhost:3000", // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -22,7 +22,7 @@ const io = socketIo(server, {
 
 app.use(
   cors({
-    origin: "https://chat.cat-tools.com", // Укажите правильный адрес вашего клиента (фронтенда)
+    origin: "http://localhost:3000", // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -30,7 +30,7 @@ app.use(
 );
 
 mongoose
-  .connect("mongodb://mongo:27017/chat", {
+  .connect("mongodb://127.0.0.1:27017/chat", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

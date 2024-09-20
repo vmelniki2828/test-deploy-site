@@ -7,7 +7,7 @@ const app = express();
 
 // Настройка CORS
 app.use(cors({
-  origin: 'http://chat.cat-tools.com', // Укажите здесь ваш фронтенд домен
+  origin: 'http://localhost:3000', // Укажите здесь ваш фронтенд домен
   methods: ["GET", "POST", "PUT"],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true, // Установите true, если ваш фронтенд использует куки

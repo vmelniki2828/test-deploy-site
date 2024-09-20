@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
+import { FiLogOut } from 'react-icons/fi';
 
 export const SideBarConteiner = styled.div`
   display: flex;
@@ -10,9 +11,8 @@ export const SideBarConteiner = styled.div`
   position: fixed;
   height: 100%;
   border-right: 1px solid #ccc;
-  padding-top: 90px;
+  padding-top: 20px;
 `;
-
 
 export const ListConteiner = styled.div`
   /* margin-bottom: 270px; */
@@ -79,4 +79,19 @@ export const NavLinkStyled = styled(NavLink)`
 export const SideBarImg = styled.img`
   width: 20px;
   height: 20px;
+`;
+
+export const EndConteiner = styled.div``;
+
+export const LogOutBtn = styled.button`
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  margin-bottom: 20px;
+`;
+
+export const LogOutIcon = styled(FiLogOut)`
+  width: 25px;
+  height: 25px;
+  color: #b1b1b1;
 `;

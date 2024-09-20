@@ -25,6 +25,7 @@ export const App = () => {
   const { isRefreshing } = useAuth();
   const [changePage, setChangePage] = useState(true);
   const [messages, setMessages] = useState({});
+  const [currentChat, setCurrentChat] = useState(null)
 
   const uname = useSelector(selectUserUsername);
   const [chats, setChats] = useState([]);
@@ -32,7 +33,7 @@ export const App = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(
-        `https://chat.cat-tools.com/api/rooms/${uname}`
+        `http://localhost:8000/api/rooms/${uname}`
       );
       setChats(response.data);
     } catch (error) {
@@ -68,7 +69,7 @@ export const App = () => {
     <>
       {location.pathname === '/login' ? null : (
         <>
-          <Header />
+          <Header selectedChat={currentChat}/>
           {changePage && <SideBar setChangePage={setChangePage} />}
         </>
       )}
@@ -92,7 +93,7 @@ export const App = () => {
             path="/main"
             element={
               <PrivateRoute>
-                <ChatsPage chats={chats} />
+                <ChatsPage chats={chats} setCurrentChat={setCurrentChat}/>
               </PrivateRoute>
             }
           />

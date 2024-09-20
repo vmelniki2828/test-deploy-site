@@ -9,6 +9,7 @@ import {
   ChatText,
   ChatInfoWrap,
   MessageTime,
+  UserNameText,
 } from './SideBarChats.styled';
 import userPhoto from '../../images/photoexample.jpeg';
 import { format } from 'date-fns'; 
@@ -59,7 +60,7 @@ const SideBarChats = ({ chats, onChatSelect }) => {
           >
             <UserImg src={userPhoto} alt="UserImg" />
             <div>
-              <div>{chat?.clients?.username}</div>
+              <UserNameText>{chat?.clients?.username}</UserNameText>
               <ChatInfoWrap>
                 <ChatText>
                   {chat?.messages[chat?.messages.length - 1]?.message || ""}
