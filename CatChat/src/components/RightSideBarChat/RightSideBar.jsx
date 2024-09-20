@@ -13,6 +13,14 @@ import {
   UserWrap,
   UserName,
   UserMail,
+  Text,
+  MainText,
+  TextItem,
+  UserLocationConteiner,
+  LocationItem,
+  LocationText,
+  Location,
+  MapStyle,
 } from './RightSideBarChat.styled';
 import userPhoto from '../../images/photoexample.jpeg';
 
@@ -56,15 +64,50 @@ const RightSideBarChat = () => {
                 <UserMail>{currentChat?.clients?.email}</UserMail>
               </UserWrap>
             </UserCon>
-            <p>Ip : {currentChat?.clients?.otherInfo?.ip}</p>
-            <p>Language : {currentChat?.clients?.otherInfo?.language}</p>
-            <p>Location : {currentChat?.clients?.otherInfo?.location}</p>
-            <p>Referrer : {currentChat?.clients?.otherInfo?.referrer}</p>
-            <p>Timestamp : {currentChat?.clients?.otherInfo?.timestamp}</p>
-            <p>Timezone : {currentChat?.clients?.otherInfo?.timezone}</p>
-            <p>UserAgent : {currentChat?.clients?.otherInfo?.userAgent}</p>
-            <p>Latitude : {currentChat?.clients?.otherInfo?.coordinates?.latitude}</p>
-            <p>Longitude : {currentChat?.clients?.otherInfo?.coordinates?.longitude}</p>
+            <UserLocationConteiner>
+              <LocationItem>
+                <LocationText>
+                  <Location />
+                  {currentChat?.clients?.otherInfo?.location}
+                </LocationText>
+              </LocationItem>
+            </UserLocationConteiner>
+            <MainText>Main data</MainText>
+            <Text>
+              IP : <TextItem>{currentChat?.clients?.otherInfo?.ip}</TextItem>
+            </Text>
+            <Text>
+              Language :
+              <TextItem>{currentChat?.clients?.otherInfo?.language}</TextItem>
+            </Text>
+            <Text>
+              Referrer :
+              <TextItem>{currentChat?.clients?.otherInfo?.referrer}</TextItem>
+            </Text>
+            <Text>
+              Timestamp :
+              <TextItem>{currentChat?.clients?.otherInfo?.timestamp}</TextItem>
+            </Text>
+            <Text>
+              Timezone :
+              <TextItem>{currentChat?.clients?.otherInfo?.timezone}</TextItem>
+            </Text>
+            <Text>
+              UserAgent :
+              <TextItem>{currentChat?.clients?.otherInfo?.userAgent}</TextItem>
+            </Text>
+            <Text>
+              Latitude :
+              <TextItem>
+                {currentChat?.clients?.otherInfo?.coordinates?.latitude}
+              </TextItem>
+            </Text>
+            <Text>
+              Longitude :
+              <TextItem>
+                {currentChat?.clients?.otherInfo?.coordinates?.longitude}
+              </TextItem>
+            </Text>
           </>
         ) : (
           <div>{/* Add the Ticket Info here */}</div>

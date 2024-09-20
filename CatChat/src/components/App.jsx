@@ -25,6 +25,7 @@ export const App = () => {
   const { isRefreshing } = useAuth();
   const [changePage, setChangePage] = useState(true);
   const [messages, setMessages] = useState({});
+  const [currentChat, setCurrentChat] = useState(null)
 
   const uname = useSelector(selectUserUsername);
   const [chats, setChats] = useState([]);
@@ -68,7 +69,7 @@ export const App = () => {
     <>
       {location.pathname === '/login' ? null : (
         <>
-          <Header />
+          <Header selectedChat={currentChat}/>
           {changePage && <SideBar setChangePage={setChangePage} />}
         </>
       )}
@@ -92,7 +93,7 @@ export const App = () => {
             path="/main"
             element={
               <PrivateRoute>
-                <ChatsPage chats={chats} />
+                <ChatsPage chats={chats} setCurrentChat={setCurrentChat}/>
               </PrivateRoute>
             }
           />

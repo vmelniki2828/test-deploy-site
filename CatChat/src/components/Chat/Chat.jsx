@@ -65,6 +65,12 @@ const Chat = ({ selectedChat }) => {
     }
   };
 
+  const handleKeyPress = e => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
   useEffect(() => {
     // Обработка события отключения чата
     socket.on('chat_disconnected', message => {
@@ -77,21 +83,22 @@ const Chat = ({ selectedChat }) => {
     };
   }, []);
 
-  const handleDisconnectChat = () => {
-    const roomId = selectedChat.roomId; // Получите ID комнаты, которую нужно отключить
-    socket.emit('disconnect_chat', roomId);
-  };
-
   return (
     <ChatContainer>
       <ChatMessages>
-        <button onClick={handleDisconnectChat}>Отключить чат</button>
         {messages?.map((mes, index) => (
           <ChatDiv key={index} isManager={mes.sender === uname}>
             <MessageWrap isManager={mes.sender === uname}>
-              {!uPhoto && <UserImg src={userPhoto} alt="UserImg"   isManager={mes.sender === uname}/>}
+              {!uPhoto && (
+                <UserImg
+                  src={userPhoto}
+                  alt="UserImg"
+                  isManager={mes.sender === uname}
+                />
+              )}
               {uPhoto && (
-                <UserImg  isManager={mes.sender === uname}
+                <UserImg
+                  isManager={mes.sender === uname}
                   src={`http://${process.env.REACT_APP_BACKEND_URL}${uPhoto}`}
                   alt="UserImg"
                 />
@@ -117,15 +124,10 @@ const Chat = ({ selectedChat }) => {
         <ChatInput
           value={message}
           onChange={e => setMessage(e.target.value)}
+          onKeyDown={handleKeyPress}
           placeholder="Введите сообщение"
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              sendMessage();  
-              e.preventDefault(); 
-            }
-          }}
         />
-        <SendButton onClick={sendMessage} >
+        <SendButton onClick={sendMessage} onKeyDown={handleKeyPress}>
           Send
           <IconButton src={Vec} alt="Vec" />
         </SendButton>
