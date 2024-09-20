@@ -32,7 +32,7 @@ export const App = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(
-        `https://chat.cat-tools.com/api/rooms/${uname}`
+        `http://localhost:8000/api/rooms/${uname}`
       );
       setChats(response.data);
     } catch (error) {

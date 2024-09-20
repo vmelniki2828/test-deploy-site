@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-export const socket = io('https://chat.cat-tools.com', {
+export const socket = io('http://localhost:8000', {
   transports: ['websocket', 'polling'],
   withCredentials: true,
   reconnection: true, // Включает автоматическое восстановление соединения
@@ -13,7 +13,7 @@ export const getArchivedRooms = uname => {
   socket.emit('get_archived_rooms', { username: uname });
 };
 
-axios.defaults.baseURL = 'https://chat.cat-tools.com/api';
+axios.defaults.baseURL = 'http://localhost:8000/api';
 
 export const token = {
   set(token) {

@@ -39,7 +39,7 @@ const Header = () => {
 
   const handleManagers = async () => {
     try {
-      const response = await axios.get(`https://chat.cat-tools.com/api/managers`);
+      const response = await axios.get(`http://localhost:8000/api/managers`);
       setAllManagers(response.data);
     } catch (error) {
       console.error('Ошибка при выполнении запроса:', error);
@@ -49,7 +49,7 @@ const Header = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(
-        `https://chat.cat-tools.com/api/rooms/${uname}`
+        `http://localhost:8000/api/rooms/${uname}`
       );
       setChats(response.data);
     } catch (error) {
@@ -60,7 +60,7 @@ const Header = () => {
   const handleManager = async () => {
     try {
       const response = await axios.get(
-        `https://chat.cat-tools.com/api/managers/${uname}`
+        `http://localhost:8000/api/managers/${uname}`
       );
       setManager(response.data); // Обновил состояние менеджера
     } catch (error) {
@@ -91,7 +91,7 @@ const Header = () => {
       socket.emit('join_manager', username.trim());
     }
 
-    fetch('https://chat.cat-tools.com/api/managers')
+    fetch('http://localhost:8000/api/managers')
       .then(response => {
         if (!response.ok) {
           throw new Error(
@@ -123,7 +123,7 @@ const Header = () => {
   const handleReplaceManager = async () => {
     try {
       const response = await fetch(
-        `https://chat.cat-tools.com/api/rooms/${currentChat?.roomId}/replace-manager`,
+        `http://localhost:8000/api/rooms/${currentChat?.roomId}/replace-manager`,
         {
           method: 'PUT',
           headers: {
