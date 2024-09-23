@@ -10,6 +10,7 @@ import {
   ChatInfoWrap,
   MessageTime,
   MassageWrap,
+  ChatTextItem,
 } from './SideBarArchive.styled';
 import userPhoto from '../../images/photoexample.jpeg';
 import { getArchivedRooms, socket } from '../../services/API';
@@ -72,7 +73,7 @@ const SideBarArchive = ({onChatSelect}) => {
               <ChatInfoWrap>
                 <MassageWrap>
                   <ChatText>{room?.clients?.username || 'No username'}</ChatText>
-                  <ChatText>{lastMessage ? lastMessage.message : 'No messages'}</ChatText>
+                  <ChatTextItem>{lastMessage ? lastMessage.message : 'No messages'}</ChatTextItem>
                 </MassageWrap>
                 <MessageTime>{formattedEndTime}</MessageTime>
               </ChatInfoWrap>

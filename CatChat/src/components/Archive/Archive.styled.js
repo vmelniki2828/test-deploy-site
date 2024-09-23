@@ -6,18 +6,16 @@ export const ArchiveContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 100vh;
-  width:1275px;
+  width: 1275px;
   min-width: 800px;
   margin-left: 343px;
-position:fixed;
+  position: fixed;
   box-sizing: border-box;
 `;
 
-
 export const ChatMessages = styled.div`
- 
-  margin-top:100px;
-  margin-left:5px;
+  margin-top: 50px;
+  margin-left: 30px;
   width: 100%;
   overflow-y: auto;
   box-sizing: border-box;
@@ -31,49 +29,49 @@ export const MessageBox = styled.div`
     isManager ? '#EFE9FF' : 'transparent'};
 `;
 
- export const IconButton = styled.img`
- width: 9px;
-height: 8px;
-padding-left:5px;
- `;
+export const IconButton = styled.img`
+  width: 9px;
+  height: 8px;
+  padding-left: 5px;
+`;
 
- export const InputWrap = styled.div`
- position:relative;
- `;
+export const InputWrap = styled.div`
+  position: relative;
+`;
 
- export const ChatDiv = styled.div`
- display:flex;
+export const ChatDiv = styled.div`
+  display: flex;
   flex-direction: column;
   align-items: ${({ isManager }) => (isManager ? 'flex-end' : 'flex-start')};
- `
+`;
 
- export const UserImg = styled.img`
- width: 30px;
-height: 30px;
-border-radius: 10px;
-margin:${({ isManager }) => (isManager ? '0 0 0 10px' : '0 10px 0 0')};
- `;
+export const UserImg = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  margin: ${({ isManager }) => (isManager ? '0 0 0 10px' : '0 10px 0 0')};
+`;
 
- export const ChatText = styled.p`
- font-family: 'Geologica';
-font-size: 12px;
-font-weight: 300;
-line-height: 15px;
-text-align: left;
-color: #0A1019;
-max-width: 355px;
-word-wrap: break-word; 
-overflow-wrap: break-word;
-margin: 0;
- `;
+export const ChatText = styled.p`
+  font-family: 'Geologica';
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 15px;
+  text-align: left;
+  color: #0a1019;
+  max-width: 355px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  margin: 0;
+`;
 
- export const MessageTime = styled.p`
- font-family: 'Geologica';
- font-size: 8px;
- font-weight: 400;
- line-height: 10px;
- text-align: right;
- margin: 0;
+export const MessageTime = styled.p`
+  font-family: 'Geologica';
+  font-size: 8px;
+  font-weight: 400;
+  line-height: 10px;
+  text-align: right;
+  margin: 0;
 `;
 
 export const MessageWrap = styled.div`
@@ -83,12 +81,14 @@ export const MessageWrap = styled.div`
 `;
 
 export const StartText = styled.h2`
-font-family: 'Geologica';
- font-size: 24px;
- font-weight: 700;
- line-height: 10px;
- text-align: center;
- 
+  font-family: 'Geologica';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 28px;
+  text-align: center;
+
+  color: #0a1019;
 `;
 
 export const InfoWrap = styled.div`
@@ -104,4 +104,14 @@ export const TextName = styled.h2`
   text-align: right;
   margin: 0;
   padding-right: 5px;
+`;
+
+export const TextItem = styled.p`
+  font-family: 'Geologica';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 28px;
+
+  color: #0a1019;
 `;

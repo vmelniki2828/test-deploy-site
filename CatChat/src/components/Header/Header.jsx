@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal/Modal';
 import { Manager } from 'socket.io-client';
+import { useLocation } from 'react-router-dom';
 
 const Header = ({ selectedChat }) => {
   const uname = useSelector(selectUserUsername);
@@ -38,9 +39,12 @@ const Header = ({ selectedChat }) => {
   const [allManagers, setAllManagers] = useState();
   const [openSettings, setOpenSettings] = useState(false);
 
+  const pageLocation = useLocation();
+
   const [selectedOption, setSelectedOption] = useState('');
 
   console.log(selectedChat);
+  console.log(pageLocation.pathname);
 
   const handleOpenSetting = () => {
     setOpenSettings(prev => !prev);
@@ -52,7 +56,9 @@ const Header = ({ selectedChat }) => {
 
   const handleManagers = async () => {
     try {
-      const response = await axios.get(`https://chat.cat-tools.com/api/managers`);
+      const response = await axios.get(
+        `https://chat.cat-tools.com/api/managers`
+      );
       setAllManagers(response.data);
     } catch (error) {
       console.error('Ошибка при выполнении запроса:', error);
@@ -238,7 +244,11 @@ const Header = ({ selectedChat }) => {
           )}
         </Modal>
 
-        <Settings onClick={handleOpenSetting} />
+        {pageLocation.pathname !== '/archive' ? (
+          <Settings onClick={handleOpenSetting} />
+        ) : (
+          <></>
+        )}
       </HeaderNameWrap>
     </HeaderConteiner>
   );
