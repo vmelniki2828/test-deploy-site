@@ -20,19 +20,23 @@ import {
   LocationItem,
   LocationText,
   Location,
-  MapStyle,
 } from './RightSideBarChat.styled';
 import userPhoto from '../../images/photoexample.jpeg';
+import Map from '../../components/Map/Map';
 
 const RightSideBarChat = () => {
   const currentChat = useSelector(state => state.chat.currentChat);
   const [selectedTab, setSelectedTab] = useState('person'); // Состояние для выбора вкладки
+  const latitude = currentChat?.clients?.otherInfo?.coordinates.latitude
+  const longitude = currentChat?.clients?.otherInfo?.coordinates.longitude
+  const locationCoordinates = {latitude, longitude};
+  const testLocation = {latitude : 50.458, longitude : 30.5303};
 
   const handleTabClick = tab => {
     setSelectedTab(tab);
   };
 
-  console.log(currentChat);
+  console.log(currentChat.clients);
 
   return (
     <InfoCon>
@@ -70,6 +74,7 @@ const RightSideBarChat = () => {
                   <Location />
                   {currentChat?.clients?.otherInfo?.location}
                 </LocationText>
+                <Map coordinates={testLocation}/>
               </LocationItem>
             </UserLocationConteiner>
             <MainText>Main data</MainText>

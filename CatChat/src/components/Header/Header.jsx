@@ -19,7 +19,7 @@ import { socket } from 'services/API';
 import { selectUserUsername } from '../../redux/selectors';
 
 import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal/Modal';
 import { Manager } from 'socket.io-client';
@@ -38,17 +38,34 @@ const Header = ({ selectedChat }) => {
   const [manager, setManager] = useState(null); // Установил начальное состояние как null
   const [allManagers, setAllManagers] = useState();
   const [openSettings, setOpenSettings] = useState(false);
+  const modalRef = useRef(null);
 
   const pageLocation = useLocation();
 
   const [selectedOption, setSelectedOption] = useState('');
 
   console.log(selectedChat);
-  console.log(pageLocation.pathname);
 
   const handleOpenSetting = () => {
     setOpenSettings(prev => !prev);
   };
+
+  const handleClickOutside = event => {
+    if (modalRef.current && !modalRef.current.contains(event.target)) {
+      setOpenSettings(false); // Закрыть модальное окно при клике снаружи
+    }
+  };
+
+  useEffect(() => {
+    if (openSettings) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openSettings]);
 
   const handleSelectChange = event => {
     setSelectedOption(event.target.value);
@@ -58,7 +75,7 @@ const Header = ({ selectedChat }) => {
     try {
       const response = await axios.get(
         `https://chat.cat-tools.com/api/managers`
-      ); 
+      );
       setAllManagers(response.data);
     } catch (error) {
       console.error('Ошибка при выполнении запроса:', error);
@@ -186,33 +203,37 @@ const Header = ({ selectedChat }) => {
           {currentChat ? currentChat?.clients?.username : ''}
         </HeaderName>
 
-        {openSettings ? (
-          <ModalWindow>
-            {manager?.manager === null ? (
-              <SettingsStyle onClick={() => joinChat(uname)}>
-                <ManagerIcon />
-                Join Manager
+        {pageLocation.pathname !== '/archive' ? (
+          openSettings ? (
+            <ModalWindow ref={modalRef}>
+              {manager?.manager === null ? (
+                <SettingsStyle onClick={() => joinChat(uname)}>
+                  <ManagerIcon />
+                  Join Manager
+                </SettingsStyle>
+              ) : (
+                <SettingsStyle onClick={() => removeManager(uname)}>
+                  <ManagerIcon />
+                  Remove Manager
+                </SettingsStyle>
+              )}
+              <SettingsStyle
+                onClick={() => {
+                  openModal();
+                  handleManagers();
+                }}
+              >
+                <OpenModal /> Открыть модальное окно
               </SettingsStyle>
-            ) : (
-              <SettingsStyle onClick={() => removeManager(uname)}>
-                <ManagerIcon />
-                Remove Manager
+              <SettingsStyle onClick={handleDisconnectChat}>
+                <CloseChat />
+                Отключить чат
               </SettingsStyle>
-            )}
-            <SettingsStyle
-              onClick={() => {
-                openModal();
-                handleManagers();
-              }}
-            >
-              <OpenModal /> Открыть модальное окно
-            </SettingsStyle>
-            <SettingsStyle onClick={handleDisconnectChat}>
-              <CloseChat />
-              Отключить чат
-            </SettingsStyle>
-          </ModalWindow>
-        ) : null}
+            </ModalWindow>
+          ) : null
+        ) : (
+          <></>
+        )}
 
         <Modal show={showModal}>
           <button onClick={closeModal}>X</button>
