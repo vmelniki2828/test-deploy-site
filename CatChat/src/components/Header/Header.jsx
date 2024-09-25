@@ -44,8 +44,6 @@ const Header = ({ selectedChat }) => {
 
   const [selectedOption, setSelectedOption] = useState('');
 
-  console.log(selectedChat);
-
   const handleOpenSetting = () => {
     setOpenSettings(prev => !prev);
   };
@@ -87,7 +85,11 @@ const Header = ({ selectedChat }) => {
       const response = await axios.get(
         `http://localhost:8000/api/rooms/${uname}`
       );
-      setChats(response.data);
+      if (response.data) {
+        setChats(response.data);
+      } else {
+        setChats([]);
+      }
     } catch (error) {
       console.error('Ошибка при выполнении запроса:', error);
     }
@@ -106,20 +108,6 @@ const Header = ({ selectedChat }) => {
 
   useEffect(() => {
     handleManager();
-  }, []);
-
-  useEffect(() => {
-    handleSearch();
-
-    // Прослушивание события "newChat" и обновление списка чатов
-    socket.on('newChat', newRoom => {
-      setChats(prevChats => [...prevChats, newRoom]);
-    });
-
-    // Очистка слушателя при размонтировании компонента
-    return () => {
-      socket.off('newChat');
-    };
   }, []);
 
   const joinChat = username => {

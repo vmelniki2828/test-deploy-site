@@ -45,21 +45,27 @@ export const App = () => {
     handleSearch();
 
     // Прослушивание события "newChat" и обновление списка чатов
-    socket.on('newChat', (newRoom) => {
-      // Only add to the chat list if the manager is part of the room
-      if (newRoom.managers.some(manager => manager.username === uname)) {
-        setChats(prevChats => [...prevChats, newRoom]);
+    socket.on('newChat', () => {
+      handleSearch();
+      if (chats) {
+        setChats(chats);
+        console.log(chats);
       }
     });
 
-    socket.on('update_chats', () => {
+    socket.on('update_chat_list', () => {
+      console.log();
       handleSearch();
+      if (chats) {
+        setChats(chats);
+        console.log(chats);
+      }
     });
 
     // Очистка слушателя при размонтировании компонента
     return () => {
       socket.off('newChat');
-      socket.off('update_chats');
+      socket.off('update_chat_list');
     };
   }, []);
   

@@ -12,7 +12,7 @@ import {
   UserNameText,
 } from './SideBarChats.styled';
 import userPhoto from '../../images/photoexample.jpeg';
-import { format } from 'date-fns'; 
+import { format } from 'date-fns';
 
 const SideBarChats = ({ chats, onChatSelect }) => {
   const dispatch = useDispatch();
@@ -28,6 +28,7 @@ const SideBarChats = ({ chats, onChatSelect }) => {
       handleChatChange(chat);
     }
     setCchat(chat); // Сохраняем выбранный чат
+    console.log(chats)
   };
 
   // Этот эффект срабатывает при изменении списка chats
@@ -39,6 +40,7 @@ const SideBarChats = ({ chats, onChatSelect }) => {
       }
     }
   }, [chats]);
+
 
   const sortedChats = chats?.sort((a, b) => {
     const lastMessageTimeA = a?.messages.length
@@ -63,16 +65,16 @@ const SideBarChats = ({ chats, onChatSelect }) => {
               <UserNameText>{chat?.clients?.username}</UserNameText>
               <ChatInfoWrap>
                 <ChatText>
-                  {chat?.messages[chat?.messages.length - 1]?.message || ""}
+                  {chat?.messages[chat?.messages.length - 1]?.message || ''}
                 </ChatText>
                 <MessageTime>
-                {format(
+                  {format(
                     new Date(
                       chat?.messages.length
                         ? chat?.messages[chat?.messages.length - 1]?.timestamp
                         : chat?.startTime
                     ),
-                    'HH:mm' 
+                    'HH:mm'
                   )}
                 </MessageTime>
               </ChatInfoWrap>

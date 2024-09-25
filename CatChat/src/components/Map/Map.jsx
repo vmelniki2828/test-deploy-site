@@ -5,8 +5,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 const Map = ({ coordinates }) => {
   const mapContainerRef = useRef(null);
 
-  console.log(coordinates);
-
   useEffect(() => {
     const map = new maplibregl.Map({
       container: mapContainerRef.current,

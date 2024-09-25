@@ -36,8 +36,6 @@ const RightSideBarChat = () => {
     setSelectedTab(tab);
   };
 
-  console.log(currentChat.clients);
-
   return (
     <InfoCon>
       <HeaderInfoWrap>

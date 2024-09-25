@@ -214,7 +214,7 @@ io.on("connection", (socket) => {
       console.log("Новое сообщение сохранено:", newMessage);
 
       console.log(`Отправляем сообщение в комнату ${roomId}`);
-      io.to(roomId).emit("receive_message", newMessage);
+      io.emit("receive_message", newMessage);
       console.log(`Сообщение отправлено в комнату ${roomId}`);
       io.emit("update_chats");
       console.log("Чаты обновлены для всех клиентов");
@@ -255,6 +255,8 @@ io.on("connection", (socket) => {
           "Чат был отключен и архивирован."
         );
         io.in(roomId).socketsLeave(roomId);
+        io.emit("update_chat_list");
+        console.log("Событие update_chat_list отправлено");
       } else {
         console.log(`Комната с ID ${roomId} не найдена`);
       }

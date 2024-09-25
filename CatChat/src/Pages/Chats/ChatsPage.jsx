@@ -7,10 +7,10 @@ import { ChatsPageContainer } from './ChatsPage.styled';
 const ChatsPage = ({ chats, setCurrentChat }) => {
   const [selectedChat, setSelectedChat] = useState(null);
 
-  useEffect(() => { 
-    setCurrentChat(selectedChat)
-    console.log(chats);
-  }, [chats, selectedChat]);
+  useEffect(() => {
+    setCurrentChat(selectedChat);
+    console.log(selectedChat);
+  }, [selectedChat]);
 
   return (
     <ChatsPageContainer>

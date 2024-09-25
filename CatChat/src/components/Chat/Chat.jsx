@@ -27,12 +27,22 @@ const Chat = ({ selectedChat }) => {
   const uPhoto = useSelector(selectUserPhoto);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState(selectedChat?.messages || []);
-  console.log(selectedChat);
   useEffect(() => {
     if (selectedChat?.messages) {
       setMessages(selectedChat.messages);
     }
   }, [selectedChat]);
+
+  const sendMessage = () => {
+    if (message.trim() !== '') {
+      socket.emit('send_message', {
+        roomId: selectedChat.roomId,
+        sender: uname,
+        messageText: message,
+      });
+      setMessage('');
+    }
+  };
 
   useEffect(() => {
     socket.on('receive_message', message => {
@@ -53,17 +63,6 @@ const Chat = ({ selectedChat }) => {
       dispatch(setMessages(parsedMessages)); // Пример действия Redux
     }
   }, []);
-
-  const sendMessage = () => {
-    if (message.trim() !== '') {
-      socket.emit('send_message', {
-        roomId: selectedChat.roomId,
-        sender: uname,
-        messageText: message,
-      });
-      setMessage('');
-    }
-  };
 
   const handleKeyPress = e => {
     if (e.key === 'Enter') {
