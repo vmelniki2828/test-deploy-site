@@ -11,6 +11,9 @@ const roomRoutes = require("./routes/roomsRoutes");
 const authRoutes = require("./routes/authRoutes");
 const { default: mongoose } = require("mongoose");
 const ArchivedRoom = require("./models/archivedRoom");
+const multer = require('multer');
+const path = require('path');
+
 const io = socketIo(server, {
   cors: {
     origin: "http://localhost:3000", // Укажите правильный адрес вашего клиента (фронтенда)
@@ -280,6 +283,51 @@ io.on("connection", (socket) => {
   //   }
   // });
   // });
+
+
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads/'); // Путь для сохранения файлов
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+    }
+  });
+  
+  const upload = multer({ storage });
+  
+  app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Статическая папка для доступа к файлам
+  
+  // Маршрут для загрузки файла
+  app.post('/api/upload-file', upload.single('file'), async (req, res) => {
+    try {
+      const { roomId } = req.body;  // Получаем идентификатор комнаты
+      const filePath = `/uploads/${req.file.filename}`;  // Путь к загруженному файлу
+  
+      // Находим комнату и добавляем файл в сообщения
+      const room = await Room.findOne({ roomId });
+      if (!room) {
+        return res.status(404).json({ message: 'Комната не найдена' });
+      }
+  
+      const newMessage = {
+        sender,  
+        message: `Файл загружен: ${filePath}`,
+        fileUrl: filePath,
+        timestamp: new Date(),
+      };
+  
+      room.messages.push(newMessage);
+      await room.save();
+  
+      io.to(roomId).emit('receive_message', newMessage); // Отправляем новое сообщение в комнату
+      res.status(200).json({ message: 'Файл успешно загружен', filePath });
+    } catch (err) {
+      console.error('Ошибка при загрузке файла:', err);
+      res.status(500).json({ message: 'Ошибка при загрузке файла' });
+    }
+  });
+
 
   socket.on("get_archived_rooms", async ({ username }) => {
     try {
