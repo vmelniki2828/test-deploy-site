@@ -18,31 +18,28 @@ import MainIcon from '../../images/Union.png';
 import { socket } from 'services/API';
 import { selectUserUsername } from '../../redux/selectors';
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal/Modal';
 import { Manager } from 'socket.io-client';
 import { useLocation } from 'react-router-dom';
+import { fetchManager, fetchManagers, fetchRooms, replaceChatManager } from '../../redux/Chat/chatActions';
 
 const Header = ({ selectedChat }) => {
-  const uname = useSelector(selectUserUsername);
+  const dispatch = useDispatch();
+  const uname = useSelector(state => state.user.username);
   const currentChat = useSelector(state => state.chat.currentChat);
+  const manager = useSelector(state => state.chat.currentManager);
+  const managers = useSelector(state => state.chat.managers);
   const [showModal, setShowModal] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('');
+  const [openSettings, setOpenSettings] = useState(false);
+  const modalRef = useRef(null);
+  const pageLocation = useLocation();
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
-
-  const [users, setUsers] = useState([]);
-  const [chats, setChats] = useState([]);
-  const [manager, setManager] = useState(null); // Установил начальное состояние как null
-  const [allManagers, setAllManagers] = useState();
-  const [openSettings, setOpenSettings] = useState(false);
-  const modalRef = useRef(null);
-
-  const pageLocation = useLocation();
-
-  const [selectedOption, setSelectedOption] = useState('');
 
   const handleOpenSetting = () => {
     setOpenSettings(prev => !prev);
@@ -50,7 +47,7 @@ const Header = ({ selectedChat }) => {
 
   const handleClickOutside = event => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
-      setOpenSettings(false); // Закрыть модальное окно при клике снаружи
+      setOpenSettings(false);
     }
   };
 
@@ -69,116 +66,39 @@ const Header = ({ selectedChat }) => {
     setSelectedOption(event.target.value);
   };
 
-  const handleManagers = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/managers`
-      );
-      setAllManagers(response.data);
-    } catch (error) {
-      console.error('Ошибка при выполнении запроса:', error);
-    }
-  };
-
-  const handleSearch = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/rooms/${uname}`
-      );
-      if (response.data) {
-        setChats(response.data);
-      } else {
-        setChats([]);
-      }
-    } catch (error) {
-      console.error('Ошибка при выполнении запроса:', error);
-    }
-  };
-
-  const handleManager = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/managers/${uname}`
-      );
-      setManager(response.data); // Обновил состояние менеджера
-    } catch (error) {
-      console.error('Ошибка при выполнении запроса:', error);
-    }
-  };
-
   useEffect(() => {
-    handleManager();
-  }, []);
+    dispatch(fetchManager(uname)); 
+    dispatch(fetchRooms(uname)); 
+  }, [dispatch, uname]);
 
   const joinChat = username => {
     if (username.trim() !== '') {
       socket.emit('join_manager', username.trim());
+      dispatch(fetchManager(username)); 
     }
-
-    fetch('http://localhost:8000/api/managers')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(
-            'Не удалось загрузить список пользователей: ' + response.status
-          );
-        }
-        return response.json();
-      })
-      .then(data => {
-        setUsers(data);
-      })
-      .catch(error => {
-        console.error('Произошла ошибка при загрузке данных:', error.message);
-      });
-
-    // Обновляем состояние после присоединения менеджера
-    setManager(prev => ({ ...prev, manager: username }));
   };
 
   const removeManager = username => {
     if (username.trim() !== '') {
       socket.emit('delete_manager', username.trim());
-    }
-
-    // Обновляем состояние после удаления менеджера
-    setManager(prev => ({ ...prev, manager: null }));
-  };
-
-  const handleReplaceManager = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/rooms/${currentChat?.roomId}/replace-manager`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            oldManagerUsername: currentChat?.managers[0]?.username,
-            newManagerUsername: selectedOption,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Ошибка HTTP: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log(data.message);
-    } catch (error) {
-      console.error('Ошибка при замене менеджера', error);
-      console.log('Не удалось заменить менеджера');
+      dispatch(fetchManager(null)); 
     }
   };
 
-  const handleDisconnectChat = () => {
-    // const roomId = selectedChat.roomId; // Получите ID комнаты, которую нужно отключить
-    // socket.emit('disconnect_chat', roomId);
+  const handleReplaceManager = () => {
+    dispatch(
+      replaceChatManager({
+        roomId: currentChat?.roomId,
+        oldManagerUsername: currentChat?.managers[0]?.username,
+        newManagerUsername: selectedOption,
+      })
+    );
+    closeModal();
   };
 
   return (
     <HeaderConteiner>
+      {/* Визуальная часть осталась неизменной */}
       <HeaderIconWrap>
         <HeaderIcon src={MainIcon} alt="UserImg" />
       </HeaderIconWrap>
@@ -191,10 +111,10 @@ const Header = ({ selectedChat }) => {
           {currentChat ? currentChat?.clients?.username : ''}
         </HeaderName>
 
-        {pageLocation.pathname !== '/archive' ? (
-          openSettings ? (
+        {pageLocation.pathname !== '/archive' &&
+          (openSettings ? (
             <ModalWindow ref={modalRef}>
-              {manager?.manager === null ? (
+              {manager === null ? (
                 <SettingsStyle onClick={() => joinChat(uname)}>
                   <ManagerIcon />
                   Join Manager
@@ -208,20 +128,17 @@ const Header = ({ selectedChat }) => {
               <SettingsStyle
                 onClick={() => {
                   openModal();
-                  handleManagers();
+                  dispatch(fetchManagers()); // Загружаем всех менеджеров
                 }}
               >
                 <OpenModal /> Открыть модальное окно
               </SettingsStyle>
-              <SettingsStyle onClick={handleDisconnectChat}>
+              <SettingsStyle>
                 <CloseChat />
                 Отключить чат
               </SettingsStyle>
             </ModalWindow>
-          ) : null
-        ) : (
-          <></>
-        )}
+          ) : null)}
 
         <Modal show={showModal}>
           <button onClick={closeModal}>X</button>
@@ -231,32 +148,26 @@ const Header = ({ selectedChat }) => {
             <option value="" disabled>
               -- Выберите вариант --
             </option>
-            {allManagers?.map(man => {
-              if (man.username != uname) {
-                return <option>{man.username}</option>;
-              }
-            })}
+            {managers?.map(
+              man =>
+                man.username !== uname && (
+                  <option key={man.username} value={man.username}>
+                    {man.username}
+                  </option>
+                )
+            )}
           </select>
 
           {selectedOption && (
             <div>
               <h2>Вы выбрали: {selectedOption}</h2>
-              <button
-                onClick={() => {
-                  handleReplaceManager();
-                  closeModal();
-                }}
-              >
-                Заменить
-              </button>
+              <button onClick={handleReplaceManager}>Заменить</button>
             </div>
           )}
         </Modal>
 
-        {pageLocation.pathname !== '/archive' ? (
+        {pageLocation.pathname !== '/archive' && (
           <Settings onClick={handleOpenSetting} />
-        ) : (
-          <></>
         )}
       </HeaderNameWrap>
     </HeaderConteiner>
