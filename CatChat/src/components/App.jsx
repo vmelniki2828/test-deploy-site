@@ -19,64 +19,18 @@ const ChatsPage = lazy(() => import('Pages/Chats/ChatsPage'));
 const ArchivePage = lazy(() => import('Pages/Archive/ArchivePage'));
 
 export const App = () => {
-  const dispatch = useDispatch();
   const location = useLocation();
-  const token = useSelector(selectAccessToken);
   const { isRefreshing } = useAuth();
-  const [changePage, setChangePage] = useState(true);
-  const [messages, setMessages] = useState({});
-  const [currentChat, setCurrentChat] = useState(null)
 
-  const uname = useSelector(selectUserUsername);
-  const [chats, setChats] = useState([]);
-
-  const handleSearch = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/rooms/${uname}`
-      );
-      setChats(response.data);
-    } catch (error) {
-      console.error('Ошибка при выполнении запроса:', error);
-    }
-  };
-
-  useEffect(() => {
-    handleSearch();
-
-    // Прослушивание события "newChat" и обновление списка чатов
-    socket.on('newChat', () => {
-      handleSearch();
-      if (chats) {
-        setChats(chats);
-        console.log(chats);
-      }
-    });
-
-    socket.on('update_chat_list', () => {
-      console.log();
-      handleSearch();
-      if (chats) {
-        setChats(chats);
-        console.log(chats);
-      }
-    });
-
-    // Очистка слушателя при размонтировании компонента
-    return () => {
-      socket.off('newChat');
-      socket.off('update_chat_list');
-    };
-  }, []);
-  
+ 
   return isRefreshing ? (
     <b>Refreshing user...</b>
   ) : (
     <>
       {location.pathname === '/login' ? null : (
         <>
-          <Header selectedChat={currentChat}/>
-          {changePage && <SideBar setChangePage={setChangePage} />}
+          <Header/>
+          <SideBar />
         </>
       )}
       <Suspense
@@ -99,7 +53,7 @@ export const App = () => {
             path="/main"
             element={
               <PrivateRoute>
-                <ChatsPage chats={chats} setCurrentChat={setCurrentChat}/>
+                <ChatsPage/>
               </PrivateRoute>
             }
           />
