@@ -10,6 +10,9 @@ export const SideBarChatsConteiner = styled.div`
   height: 100%;
   border-right: 1px solid #ccc;
   padding-top: 15px;
+
+  overflow-y: auto; 
+  overflow-x: hidden;
 `;
 
 export const MainSideBarInfo = styled.div`

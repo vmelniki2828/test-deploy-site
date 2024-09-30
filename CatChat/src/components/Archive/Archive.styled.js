@@ -6,11 +6,26 @@ export const ArchiveContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 100vh;
-  width: 1275px;
   min-width: 800px;
   margin-left: 343px;
   position: fixed;
   box-sizing: border-box;
+
+  @media (min-width: 1300px) {
+    width: 900px;
+  }
+  @media (min-width: 1400px) {
+    width: 1000px;
+  }
+  @media (min-width: 1500px) {
+    width: 1150px;
+  }
+  @media (min-width: 1600px) {
+    width: 1225px;
+  }
+  @media (min-width: 1800px) {
+    width: 1275px;
+  }
 `;
 
 export const ChatMessages = styled.div`
