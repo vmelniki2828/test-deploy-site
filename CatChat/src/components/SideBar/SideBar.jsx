@@ -16,19 +16,11 @@ import {
 import SideBarIcon from '../../images/UnionGrey.png';
 import { persistor } from '../../redux/store';
 
-const SideBar = ({ setChangePage }) => {
+const SideBar = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
 
   const location = useLocation();
-  const targetRoute = '/fraudPage';
-  const isOnTargetRoute = location.pathname === targetRoute;
-
-  const handleFraudClick = () => {
-    if (isOnTargetRoute) {
-      window.location.reload();
-    }
-  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {

@@ -72,7 +72,7 @@ const Header = ({ selectedChat }) => {
   const handleManagers = async () => {
     try {
       const response = await axios.get(
-        `https://chat.cat-tools.com/api/managers`
+        `http://localhost:8000/api/managers`
       );
       setAllManagers(response.data);
     } catch (error) {
@@ -173,8 +173,8 @@ const Header = ({ selectedChat }) => {
   };
 
   const handleDisconnectChat = () => {
-    const roomId = selectedChat.roomId; // Получите ID комнаты, которую нужно отключить
-    socket.emit('disconnect_chat', roomId);
+    // const roomId = selectedChat.roomId; // Получите ID комнаты, которую нужно отключить
+    // socket.emit('disconnect_chat', roomId);
   };
 
   return (
