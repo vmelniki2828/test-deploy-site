@@ -27,7 +27,7 @@ export const ChatsList = styled.div`
 `;
 
 export const ChatConteiner = styled.div`
-  background-color: #f2f2f2;
+  background-color: ${(props) => (props.isActive ? '#e0dcff' : '#f2f2f2')};
   width: 250px;
   height: 70px;
   border-radius: 10px;

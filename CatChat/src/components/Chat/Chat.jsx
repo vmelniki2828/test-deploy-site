@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectUserUsername, selectUserPhoto } from '../../redux/selectors';
 import userPhoto from '../../images/photoexample.jpeg';
 import { socket } from '../../services/API';
+import { fetchManager } from '../../redux/Chat/chatActions';
 
 const Chat = () => {
   const dispatch = useDispatch();

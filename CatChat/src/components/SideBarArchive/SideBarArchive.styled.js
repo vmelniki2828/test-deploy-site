@@ -7,11 +7,11 @@ export const SideBarChatsConteiner = styled.div`
   margin-left: 61px;
   width: 280px;
   position: fixed;
-  height: 100%;
   border-right: 1px solid #ccc;
   padding-top: 15px;
+  height: 790px;
 
-  overflow-y: auto; 
+  overflow-y: auto;
   overflow-x: hidden;
 `;
 
