@@ -12,7 +12,7 @@ router.get("/rooms/:managerName", async (req, res) => {
     const rooms = await Room.find({ "managers.username": managerName });
 
     if (rooms.length === 0) {
-      return res.status(404).json({ message: `Чаты с менеджером ${managerName} не найдены` });
+      return res.json([]);
     }
 
     res.json(rooms);
@@ -23,6 +23,8 @@ router.get("/rooms/:managerName", async (req, res) => {
 });
 
 router.put("/rooms/:roomId/replace-manager", async (req, res) => {
+  const io = req.app.get('io');
+
   console.log('Запрос Body:', req.body); // Логируем тело запроса
 
   const { roomId } = req.params;
@@ -59,6 +61,8 @@ router.put("/rooms/:roomId/replace-manager", async (req, res) => {
 
     // Сохраняем изменения в базе данных
     await room.save();
+
+    io.emit("manager-replaced", { roomId, oldManagerUsername, newManagerUsername });
 
     res.json({ message: `Менеджер ${oldManagerUsername} успешно заменен на ${newManagerUsername}` });
   } catch (err) {

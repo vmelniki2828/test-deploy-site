@@ -4,51 +4,24 @@ import Chat from 'components/Chat/Chat';
 import RightSideBarChat from 'components/RightSideBarChat/RightSideBar';
 import { ChatsPageContainer } from './ChatsPage.styled';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectUserUsername } from '../../redux/selectors';
 import { socket } from 'services/API';
+import { fetchRooms } from '../../redux/Chat/chatActions';
 
 const ChatsPage = () => {
-  const [selectedChat, setSelectedChat] = useState(null);
-  const [currentChat, setCurrentChat] = useState(null)
-
-  const [chats, setChats] = useState([]);
+  const dispatch = useDispatch();
   const uname = useSelector(selectUserUsername);
 
-  const handleSearch = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/rooms/${uname}`
-      );
-      setChats(response.data);
-    } catch (error) {
-      console.error('Ошибка при выполнении запроса:', error);
-    }
-  };
-
   useEffect(() => {
-    console.log(chats);
-  }, [chats]);
+    dispatch(fetchRooms(uname));
 
-  useEffect(() => {
-    handleSearch();
-
-    // Прослушивание события "newChat" и обновление списка чатов
     socket.on('newChat', () => {
-      handleSearch();
-      if (chats) {
-        setChats(chats);
-        console.log(chats);
-      }
+      dispatch(fetchRooms(uname));
     });
 
     socket.on('update_chat_list', () => {
-      console.log();
-      handleSearch();
-      if (chats) {
-        setChats(chats);
-        console.log(chats);
-      }
+      dispatch(fetchRooms(uname));
     });
 
     // Очистка слушателя при размонтировании компонента
@@ -58,15 +31,10 @@ const ChatsPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    setCurrentChat(selectedChat);
-    console.log(selectedChat);
-  }, [selectedChat]);
-
   return (
     <ChatsPageContainer>
-      <SideBarChats chats={chats} onChatSelect={setSelectedChat} />
-      <Chat selectedChat={selectedChat} />
+      <SideBarChats />
+      <Chat />
       <RightSideBarChat />
     </ChatsPageContainer>
   );

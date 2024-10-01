@@ -21,22 +21,18 @@ import { selectUserUsername, selectUserPhoto } from '../../redux/selectors';
 import userPhoto from '../../images/photoexample.jpeg';
 import { socket } from '../../services/API';
 
-const Chat = ({ selectedChat }) => {
+const Chat = () => {
   const dispatch = useDispatch();
   const uname = useSelector(selectUserUsername);
   const uPhoto = useSelector(selectUserPhoto);
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState(selectedChat?.messages || []);
-  useEffect(() => {
-    if (selectedChat?.messages) {
-      setMessages(selectedChat.messages);
-    }
-  }, [selectedChat]);
+
+  const currentChat = useSelector(state => state.chat.currentChat);
 
   const sendMessage = () => {
     if (message.trim() !== '') {
       socket.emit('send_message', {
-        roomId: selectedChat.roomId,
+        roomId: currentChat.roomId,
         sender: uname,
         messageText: message,
       });
@@ -47,7 +43,6 @@ const Chat = ({ selectedChat }) => {
   useEffect(() => {
     socket.on('receive_message', message => {
       console.log('Получено сообщение:', message);
-      setMessages(prevMessages => [...prevMessages, message]);
     });
 
     return () => {
@@ -55,14 +50,14 @@ const Chat = ({ selectedChat }) => {
     };
   }, []);
 
-  useEffect(() => {
-    const storedMessages = localStorage.getItem('chatMessages');
-    if (storedMessages) {
-      const parsedMessages = JSON.parse(storedMessages);
-      // Установите сообщения в состояние Redux или локальное состояние
-      dispatch(setMessages(parsedMessages)); // Пример действия Redux
-    }
-  }, []);
+  // useEffect(() => {
+  //   const storedMessages = localStorage.getItem('chatMessages');
+  //   if (storedMessages) {
+  //     const parsedMessages = JSON.parse(storedMessages);
+  //     // Установите сообщения в состояние Redux или локальное состояние
+  //     dispatch(setMessages(parsedMessages)); // Пример действия Redux
+  //   }
+  // }, []);
 
   const handleKeyPress = e => {
     if (e.key === 'Enter') {
@@ -73,6 +68,7 @@ const Chat = ({ selectedChat }) => {
   useEffect(() => {
     // Обработка события отключения чата
     socket.on('chat_disconnected', message => {
+      dispatch(fetchManager(null));
       alert(message); // Сообщение об отключении
       // Вы можете добавить логику для перехода на другой экран или очистки состояния чата
     });
@@ -85,7 +81,7 @@ const Chat = ({ selectedChat }) => {
   return (
     <ChatContainer>
       <ChatMessages>
-        {messages?.map((mes, index) => (
+        {currentChat?.messages?.map((mes, index) => (
           <ChatDiv key={index} isManager={mes.sender === uname}>
             <MessageWrap isManager={mes.sender === uname}>
               {!uPhoto && (

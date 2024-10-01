@@ -49,6 +49,7 @@ app.use(express.json());
 app.use("/api", managersRoutes);
 app.use("/api", roomRoutes);
 app.use("/api", authRoutes);
+app.set('io', io);
 
 // let managers = []; // Список доступных менеджеров
 // let users = {}; // Соответствие пользователя и менеджера
@@ -252,6 +253,15 @@ io.on("connection", (socket) => {
         console.log(
           `Комната с ID ${roomId} была архивирована и удалена из активных комнат`
         );
+
+        setTimeout(async () => {
+          try {
+            await ArchivedRoom.deleteOne({ roomId: archivedRoom.roomId });
+            console.log(`Архивная комната с ID ${archivedRoom.roomId} была удалена через 2 минуты`);
+          } catch (err) {
+            console.error("Ошибка при удалении архивной комнаты", err);
+          }
+        }, 2 * 60 * 1000); // 2 минуты в миллисекундах
 
         io.to(roomId).emit(
           "chat_disconnected",

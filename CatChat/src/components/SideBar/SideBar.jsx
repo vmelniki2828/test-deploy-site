@@ -18,7 +18,6 @@ import { persistor } from '../../redux/store';
 
 const SideBar = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  // const [open, setOpen] = useState(false);
 
   const location = useLocation();
 
@@ -28,23 +27,6 @@ const SideBar = () => {
     }, 1000);
     return () => clearInterval(intervalId);
   }, []);
-
-  // const handleClickOutside = event => {
-  //   if (
-  //     menuRef.current &&
-  //     !menuRef.current.contains(event.target) &&
-  //     !event.target.closest('.modal')
-  //   ) {
-  //     setOpen(false);
-  //   }
-  // };
-  // useEffect(() => {
-  //   document.addEventListener('click', handleClickOutside);
-
-  //   return () => {
-  //     document.removeEventListener('click', handleClickOutside);
-  //   };
-  // }, []);
 
   const resolvedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const formattedTime = currentTime.toLocaleTimeString('default', {

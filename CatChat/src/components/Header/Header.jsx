@@ -24,9 +24,15 @@ import axios from 'axios';
 import Modal from './Modal/Modal';
 import { Manager } from 'socket.io-client';
 import { useLocation } from 'react-router-dom';
-import { fetchManager, fetchManagers, fetchRooms, replaceChatManager } from '../../redux/Chat/chatActions';
+import {
+  fetchManager,
+  fetchManagers,
+  fetchRooms,
+  replaceChatManager,
+} from '../../redux/Chat/chatActions';
+import { setCurrentChat } from '../../redux/Chat/chatSlice';
 
-const Header = ({ selectedChat }) => {
+const Header = () => {
   const dispatch = useDispatch();
   const uname = useSelector(state => state.user.username);
   const currentChat = useSelector(state => state.chat.currentChat);
@@ -67,22 +73,47 @@ const Header = ({ selectedChat }) => {
   };
 
   useEffect(() => {
-    dispatch(fetchManager(uname)); 
-    dispatch(fetchRooms(uname)); 
+    dispatch(fetchManager(uname)); // Получаем текущего менеджера
+    dispatch(fetchRooms(uname)); // Получаем комнаты, где менеджер задействован
+
+    // Подключаем обработчик события замены менеджера от сервера
+    socket.on('manager-replaced', data => {
+      console.log(`Менеджер был заменен в комнате ${data.roomId}:`);
+      console.log(`Старый менеджер: ${data.oldManagerUsername}`);
+      console.log(`Новый менеджер: ${data.newManagerUsername}`);
+
+      // Обновляем список чатов после замены менеджера
+      dispatch(fetchRooms(uname));
+      // Если текущий чат обновился (например, менеджер был заменен в нем)
+      if (currentChat?.roomId === data.roomId) {
+        dispatch(fetchManager(uname)); // Обновляем текущего менеджера
+      }
+    });
+
+    // Очистка события при размонтировании компонента
+    return () => {
+      socket.off('manager-replaced');
+    };
   }, [dispatch, uname]);
 
   const joinChat = username => {
     if (username.trim() !== '') {
       socket.emit('join_manager', username.trim());
-      dispatch(fetchManager(username)); 
+      dispatch(fetchManager(username));
     }
   };
 
   const removeManager = username => {
     if (username.trim() !== '') {
       socket.emit('delete_manager', username.trim());
-      dispatch(fetchManager(null)); 
+      dispatch(fetchManager(null));
     }
+  };
+
+  const handleDisconnectChat = () => {
+    const roomId = currentChat?.roomId; // Получите ID комнаты, которую нужно отключить
+    socket.emit('disconnect_chat', roomId);
+    dispatch(setCurrentChat(null));
   };
 
   const handleReplaceManager = () => {
@@ -92,7 +123,15 @@ const Header = ({ selectedChat }) => {
         oldManagerUsername: currentChat?.managers[0]?.username,
         newManagerUsername: selectedOption,
       })
-    );
+    )
+      .then(() => {
+        // Обновляем список чатов после успешной замены менеджера
+        dispatch(fetchRooms(uname));
+      })
+      .catch(error => {
+        console.error('Ошибка при замене менеджера:', error);
+      });
+    dispatch(setCurrentChat(null));
     closeModal();
   };
 
@@ -114,16 +153,18 @@ const Header = ({ selectedChat }) => {
         {pageLocation.pathname !== '/archive' &&
           (openSettings ? (
             <ModalWindow ref={modalRef}>
-              {manager === null ? (
+              {manager?.manager === null ? (
                 <SettingsStyle onClick={() => joinChat(uname)}>
                   <ManagerIcon />
                   Join Manager
                 </SettingsStyle>
               ) : (
-                <SettingsStyle onClick={() => removeManager(uname)}>
-                  <ManagerIcon />
-                  Remove Manager
-                </SettingsStyle>
+                <>
+                  <SettingsStyle onClick={() => removeManager(uname)}>
+                    <ManagerIcon />
+                    Remove Manager
+                  </SettingsStyle>
+                </>
               )}
               <SettingsStyle
                 onClick={() => {
@@ -133,7 +174,7 @@ const Header = ({ selectedChat }) => {
               >
                 <OpenModal /> Открыть модальное окно
               </SettingsStyle>
-              <SettingsStyle>
+              <SettingsStyle onClick={() => handleDisconnectChat()}>
                 <CloseChat />
                 Отключить чат
               </SettingsStyle>
