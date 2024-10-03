@@ -39,7 +39,7 @@ const SideBarChats = () => {
             key={chat.roomId}
             onClick={() => {
               dispatch(setCurrentChat(chat)); 
-              setIsActive(prev => !prev); 
+              // setIsActive(prev => !prev); 
             }}
             isActive={isActive}
           >

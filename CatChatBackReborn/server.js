@@ -11,8 +11,8 @@ const roomRoutes = require("./routes/roomsRoutes");
 const authRoutes = require("./routes/authRoutes");
 const { default: mongoose } = require("mongoose");
 const ArchivedRoom = require("./models/archivedRoom");
-const multer = require('multer');
-const path = require('path');
+const multer = require("multer");
+const path = require("path");
 
 const io = socketIo(server, {
   cors: {
@@ -49,7 +49,7 @@ app.use(express.json());
 app.use("/api", managersRoutes);
 app.use("/api", roomRoutes);
 app.use("/api", authRoutes);
-app.set('io', io);
+app.set("io", io);
 
 // let managers = []; // Список доступных менеджеров
 // let users = {}; // Соответствие пользователя и менеджера
@@ -82,7 +82,15 @@ io.on("connection", (socket) => {
         manager.socketId = socket.id;
         await manager.save();
       }
-      console.log(`Менеджер ${username} сохранен в базе данных`);
+
+      // Подключаем менеджера ко всем комнатам, где он участвует
+      const rooms = await Room.find({ "managers.username": username });
+      rooms.forEach((room) => {
+        socket.join(room.roomId);
+      });
+
+      console.log(`Менеджер ${username} присоединился ко всем комнатам`);
+      socket.emit("manager_connected", { username });
     } catch (err) {
       console.error("Ошибка при сохранении менеджера в базе данных", err);
     }
@@ -103,8 +111,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join_user", async ({ username, email, otherInfo }) => {
-    console.log(`User ${username} with email ${email} and data:`, otherInfo);
-
     try {
       const randomManager = await getRandomManager();
       if (!randomManager) {
@@ -211,24 +217,34 @@ io.on("connection", (socket) => {
         timestamp: new Date(),
       };
 
+      // Добавляем новое сообщение в комнату
       room.messages.push(newMessage);
       console.log("Добавляем сообщение в комнату:", newMessage);
       await room.save();
 
       console.log("Новое сообщение сохранено:", newMessage);
 
-      console.log(`Отправляем сообщение в комнату ${roomId}`);
-      io.emit("receive_message", newMessage);
+      // Получаем все сообщения комнаты
+      const allMessages = room.messages; // Все сообщения
+
+      // Отправляем все сообщения (старые + новое) в конкретную комнату
+      io.to(roomId).emit("receive_message", {
+        messages: allMessages,
+      });
+
       console.log(`Сообщение отправлено в комнату ${roomId}`);
-      io.emit("update_chats");
-      console.log("Чаты обновлены для всех клиентов");
     } catch (err) {
       console.error("Ошибка при отправке сообщения", err);
-      // Отправляем сообщение клиенту об ошибке
       socket.emit("error_message", {
         message: "Ошибка при отправке сообщения. Попробуйте еще раз.",
       });
     }
+  });
+
+  socket.on("join_room", (roomId) => {
+    socket.join(roomId);
+    console.log(`Клиент ${socket.id} присоединился к комнате ${roomId}`);
+    console.log("Текущие комнаты:", socket.rooms);
   });
 
   socket.on("disconnect_chat", async (roomId) => {
@@ -257,7 +273,9 @@ io.on("connection", (socket) => {
         setTimeout(async () => {
           try {
             await ArchivedRoom.deleteOne({ roomId: archivedRoom.roomId });
-            console.log(`Архивная комната с ID ${archivedRoom.roomId} была удалена через 2 минуты`);
+            console.log(
+              `Архивная комната с ID ${archivedRoom.roomId} была удалена через 2 минуты`
+            );
           } catch (err) {
             console.error("Ошибка при удалении архивной комнаты", err);
           }
@@ -294,50 +312,48 @@ io.on("connection", (socket) => {
   // });
   // });
 
-
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, 'uploads/'); // Путь для сохранения файлов
+      cb(null, "uploads/"); // Путь для сохранения файлов
     },
     filename: (req, file, cb) => {
       cb(null, `${Date.now()}-${file.originalname}`);
-    }
+    },
   });
-  
+
   const upload = multer({ storage });
-  
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Статическая папка для доступа к файлам
-  
+
+  app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Статическая папка для доступа к файлам
+
   // Маршрут для загрузки файла
-  app.post('/api/upload-file', upload.single('file'), async (req, res) => {
+  app.post("/api/upload-file", upload.single("file"), async (req, res) => {
     try {
-      const { roomId } = req.body;  // Получаем идентификатор комнаты
-      const filePath = `/uploads/${req.file.filename}`;  // Путь к загруженному файлу
-  
+      const { roomId } = req.body; // Получаем идентификатор комнаты
+      const filePath = `/uploads/${req.file.filename}`; // Путь к загруженному файлу
+
       // Находим комнату и добавляем файл в сообщения
       const room = await Room.findOne({ roomId });
       if (!room) {
-        return res.status(404).json({ message: 'Комната не найдена' });
+        return res.status(404).json({ message: "Комната не найдена" });
       }
-  
+
       const newMessage = {
-        sender,  
+        sender,
         message: `Файл загружен: ${filePath}`,
         fileUrl: filePath,
         timestamp: new Date(),
       };
-  
+
       room.messages.push(newMessage);
       await room.save();
-  
-      io.to(roomId).emit('receive_message', newMessage); // Отправляем новое сообщение в комнату
-      res.status(200).json({ message: 'Файл успешно загружен', filePath });
+
+      io.to(roomId).emit("receive_message", newMessage); // Отправляем новое сообщение в комнату
+      res.status(200).json({ message: "Файл успешно загружен", filePath });
     } catch (err) {
-      console.error('Ошибка при загрузке файла:', err);
-      res.status(500).json({ message: 'Ошибка при загрузке файла' });
+      console.error("Ошибка при загрузке файла:", err);
+      res.status(500).json({ message: "Ошибка при загрузке файла" });
     }
   });
-
 
   socket.on("get_archived_rooms", async ({ username }) => {
     try {

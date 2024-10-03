@@ -20,13 +20,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectUserUsername, selectUserPhoto } from '../../redux/selectors';
 import userPhoto from '../../images/photoexample.jpeg';
 import { socket } from '../../services/API';
-import { fetchManager } from '../../redux/Chat/chatActions';
 
 const Chat = () => {
   const dispatch = useDispatch();
   const uname = useSelector(selectUserUsername);
   const uPhoto = useSelector(selectUserPhoto);
   const [message, setMessage] = useState('');
+  const [chatMessages, setChatMessages] = useState([]);  // Состояние для сообщений
 
   const currentChat = useSelector(state => state.chat.currentChat);
 
@@ -37,28 +37,31 @@ const Chat = () => {
         sender: uname,
         messageText: message,
       });
-      setMessage('');
     }
+    setMessage('');
   };
 
   useEffect(() => {
-    socket.on('receive_message', message => {
-      console.log('Получено сообщение:', message);
-    });
+    if (currentChat?.roomId) {
+      socket.emit('join_room', currentChat.roomId);
 
-    return () => {
-      socket.off('receive_message'); // Очистка обработчика при размонтировании
-    };
-  }, []);
+      // Подписка на получение сообщений
+      const handleReceiveMessage = message => { 
+        setChatMessages(message)
+      };
 
-  // useEffect(() => {
-  //   const storedMessages = localStorage.getItem('chatMessages');
-  //   if (storedMessages) {
-  //     const parsedMessages = JSON.parse(storedMessages);
-  //     // Установите сообщения в состояние Redux или локальное состояние
-  //     dispatch(setMessages(parsedMessages)); // Пример действия Redux
-  //   }
-  // }, []);
+      socket.on('receive_message', handleReceiveMessage);
+
+      socket.on('update_chat_list', () => {
+        setChatMessages([])
+      });
+
+      // Отписка от события при смене комнаты или размонтировании
+      return () => {
+        socket.off('receive_message', handleReceiveMessage);
+      };
+    }
+  }, [currentChat]);
 
   const handleKeyPress = e => {
     if (e.key === 'Enter') {
@@ -66,39 +69,18 @@ const Chat = () => {
     }
   };
 
-  useEffect(() => {
-    // Обработка события отключения чата
-    socket.on('chat_disconnected', message => {
-      dispatch(fetchManager(null));
-      alert(message); // Сообщение об отключении
-      // Вы можете добавить логику для перехода на другой экран или очистки состояния чата
-    });
-
-    return () => {
-      socket.off('chat_disconnected');
-    };
-  }, []);
-
   return (
     <ChatContainer>
       <ChatMessages>
-        {currentChat?.messages?.map((mes, index) => (
+        {/* Рендерим сообщения из состояния */}
+        {chatMessages?.messages?.map((mes, index) => (
           <ChatDiv key={index} isManager={mes.sender === uname}>
             <MessageWrap isManager={mes.sender === uname}>
-              {!uPhoto && (
-                <UserImg
-                  src={userPhoto}
-                  alt="UserImg"
-                  isManager={mes.sender === uname}
-                />
-              )}
-              {uPhoto && (
-                <UserImg
-                  isManager={mes.sender === uname}
-                  src={`http://${process.env.REACT_APP_BACKEND_URL}${uPhoto}`}
-                  alt="UserImg"
-                />
-              )}
+              <UserImg
+                src={uPhoto || userPhoto}
+                alt="UserImg"
+                isManager={mes.sender === uname}
+              />
               <div>
                 <InfoWrap>
                   <TextName>{mes.sender}</TextName>
@@ -123,7 +105,7 @@ const Chat = () => {
           onKeyDown={handleKeyPress}
           placeholder="Введите сообщение"
         />
-        <SendButton onClick={sendMessage} onKeyDown={handleKeyPress}>
+        <SendButton onClick={sendMessage}>
           Send
           <IconButton src={Vec} alt="Vec" />
         </SendButton>
