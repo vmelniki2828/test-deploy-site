@@ -204,7 +204,6 @@ io.on("connection", (socket) => {
     const { roomId, sender, messageText } = message;
     try {
       const room = await Room.findOne({ roomId });
-
       if (!room) {
         console.error("Комната не найдена");
         socket.emit("error_message", { message: "Комната не найдена." });
@@ -224,12 +223,21 @@ io.on("connection", (socket) => {
 
       console.log("Новое сообщение сохранено:", newMessage);
 
-      // Получаем все сообщения комнаты
-      const allMessages = room.messages; // Все сообщения
-
-      // Отправляем все сообщения (старые + новое) в конкретную комнату
+      // Отправляем новое сообщение всем клиентам в комнате
       io.to(roomId).emit("receive_message", {
-        messages: allMessages,
+        id: room.roomId,
+        messages: room.messages,
+      });
+
+      // Отправляем уведомление всем менеджерам, если они подключены
+      const managers = await Manager.find(); // Получаем всех менеджеров
+      managers.forEach((manager) => {
+        if (manager.socketId) {
+          io.to(manager.socketId).emit("manager_chat_update", {
+            roomId,
+            newMessage,
+          });
+        }
       });
 
       console.log(`Сообщение отправлено в комнату ${roomId}`);
@@ -237,6 +245,27 @@ io.on("connection", (socket) => {
       console.error("Ошибка при отправке сообщения", err);
       socket.emit("error_message", {
         message: "Ошибка при отправке сообщения. Попробуйте еще раз.",
+      });
+    }
+  });
+
+  socket.on("get_room_messages", async (roomId) => {
+    try {
+      const room = await Room.findOne({ roomId });
+
+      if (!room) {
+        socket.emit("error_message", { message: "Комната не найдена." });
+        return;
+      }
+
+      socket.emit("receive_message", {
+        id: room.roomId,
+        messages: room.messages, // Отправляем все сообщения комнаты
+      });
+    } catch (err) {
+      console.error("Ошибка при получении сообщений комнаты", err);
+      socket.emit("error_message", {
+        message: "Ошибка при получении сообщений.",
       });
     }
   });

@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import SideBarChats from '../../components/SideBarChats/SideBarChats';
 import Chat from 'components/Chat/Chat';
 import RightSideBarChat from 'components/RightSideBarChat/RightSideBar';
 import { ChatsPageContainer } from './ChatsPage.styled';
-import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUserUsername } from '../../redux/selectors';
 import { socket } from 'services/API';
@@ -14,22 +13,22 @@ const ChatsPage = () => {
   const uname = useSelector(selectUserUsername);
 
   useEffect(() => {
-    dispatch(fetchRooms(uname));
-
-    socket.on('newChat', () => {
+    const fetchChatRooms = () => {
       dispatch(fetchRooms(uname));
-    });
-
-    socket.on('update_chat_list', () => {
-      dispatch(fetchRooms(uname));
-    });
-
-    // Очистка слушателя при размонтировании компонента
-    return () => {
-      socket.off('newChat');
-      socket.off('update_chat_list');
     };
-  }, []);
+
+    fetchChatRooms(); // Инициализация загрузки чатов
+
+    socket.on('newChat', fetchChatRooms);
+    socket.on('update_chat_list', fetchChatRooms);
+    socket.on('receive_message', fetchChatRooms); // Обновление списка при новом сообщении
+
+    return () => {
+      socket.off('newChat', fetchChatRooms);
+      socket.off('update_chat_list', fetchChatRooms);
+      socket.off('receive_message', fetchChatRooms); // Отписка от события
+    };
+  }, [dispatch, uname]);
 
   return (
     <ChatsPageContainer>

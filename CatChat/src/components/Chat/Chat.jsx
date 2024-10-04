@@ -20,15 +20,36 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectUserUsername, selectUserPhoto } from '../../redux/selectors';
 import userPhoto from '../../images/photoexample.jpeg';
 import { socket } from '../../services/API';
+import { fetchRooms } from '../../redux/Chat/chatActions';
 
 const Chat = () => {
   const dispatch = useDispatch();
   const uname = useSelector(selectUserUsername);
   const uPhoto = useSelector(selectUserPhoto);
   const [message, setMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState([]);  // Состояние для сообщений
+  const [chatMessages, setChatMessages] = useState([]);
 
   const currentChat = useSelector(state => state.chat.currentChat);
+
+  useEffect(() => {
+    if (currentChat?.roomId) {
+      socket.emit('join_room', currentChat.roomId);
+      socket.emit('get_room_messages', currentChat.roomId); // Получаем сообщения при входе
+
+      const handleReceiveMessage = (info) => {
+        if (info.id === currentChat?.roomId) {
+          setChatMessages(info?.messages);
+          dispatch(fetchRooms(uname)); // Обновление списка чатов
+        }
+      };
+
+      socket.on('receive_message', handleReceiveMessage);
+
+      return () => {
+        socket.off('receive_message', handleReceiveMessage);
+      };
+    }
+  }, [currentChat, dispatch, uname]);
 
   const sendMessage = () => {
     if (message.trim() !== '') {
@@ -37,31 +58,9 @@ const Chat = () => {
         sender: uname,
         messageText: message,
       });
+      setMessage('');
     }
-    setMessage('');
   };
-
-  useEffect(() => {
-    if (currentChat?.roomId) {
-      socket.emit('join_room', currentChat.roomId);
-
-      // Подписка на получение сообщений
-      const handleReceiveMessage = message => { 
-        setChatMessages(message)
-      };
-
-      socket.on('receive_message', handleReceiveMessage);
-
-      socket.on('update_chat_list', () => {
-        setChatMessages([])
-      });
-
-      // Отписка от события при смене комнаты или размонтировании
-      return () => {
-        socket.off('receive_message', handleReceiveMessage);
-      };
-    }
-  }, [currentChat]);
 
   const handleKeyPress = e => {
     if (e.key === 'Enter') {
@@ -72,8 +71,7 @@ const Chat = () => {
   return (
     <ChatContainer>
       <ChatMessages>
-        {/* Рендерим сообщения из состояния */}
-        {chatMessages?.messages?.map((mes, index) => (
+        {chatMessages.map((mes, index) => (
           <ChatDiv key={index} isManager={mes.sender === uname}>
             <MessageWrap isManager={mes.sender === uname}>
               <UserImg
@@ -88,7 +86,6 @@ const Chat = () => {
                     {new Date(mes.timestamp).toLocaleTimeString()}
                   </MessageTime>
                 </InfoWrap>
-
                 <MessageBox isManager={mes.sender === uname}>
                   <ChatText>{mes.message}</ChatText>
                 </MessageBox>
