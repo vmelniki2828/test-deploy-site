@@ -13,10 +13,12 @@ const { default: mongoose } = require("mongoose");
 const ArchivedRoom = require("./models/archivedRoom");
 const multer = require("multer");
 const path = require("path");
+const WebSocket = require('ws');
+const fs = require('fs');
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000", // Укажите правильный адрес вашего клиента (фронтенда)
+    origin: ['http://localhost:3000', 'http://localhost:3001'], // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -25,7 +27,7 @@ const io = socketIo(server, {
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Укажите правильный адрес вашего клиента (фронтенда)
+    origin: ['http://localhost:3000', 'http://localhost:3001'], // Укажите правильный адрес вашего клиента (фронтенда)
     methods: ["GET", "POST", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -341,48 +343,95 @@ io.on("connection", (socket) => {
   // });
   // });
 
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, "uploads/"); // Путь для сохранения файлов
-    },
-    filename: (req, file, cb) => {
-      cb(null, `${Date.now()}-${file.originalname}`);
-    },
-  });
+  // const storage = multer.diskStorage({
+  //   destination: (req, file, cb) => {
+  //     cb(null, "uploads/"); // Путь для сохранения файлов
+  //   },
+  //   filename: (req, file, cb) => {
+  //     cb(null, `${Date.now()}-${file.originalname}`);
+  //   },
+  // });
 
-  const upload = multer({ storage });
+  // const upload = multer({ storage });
 
-  app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Статическая папка для доступа к файлам
+  // app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Статическая папка для доступа к файлам
 
-  // Маршрут для загрузки файла
-  app.post("/api/upload-file", upload.single("file"), async (req, res) => {
+  // // Маршрут для загрузки файла
+  // app.post("/api/upload-file", upload.single("file"), async (req, res) => {
+  //   try {
+  //     const { roomId, sender } = req.body; // Получаем идентификатор комнаты и отправителя
+  //     if (!req.file) {
+  //       return res.status(400).json({ message: "Файл не загружен" });
+  //     }
+  
+  //     const filePath = `/uploads/${req.file.filename}`; // Путь к загруженному файлу
+  
+  //     // Находим комнату и добавляем файл в сообщения
+  //     const room = await Room.findOne({ roomId });
+  //     if (!room) {
+  //       return res.status(404).json({ message: "Комната не найдена" });
+  //     }
+  
+  //     const newMessage = {
+  //       sender,
+  //       message: `${filePath}`,
+  //       fileUrl: filePath,
+  //       timestamp: new Date(),
+  //     };
+  
+  //     room.messages.push(newMessage);
+  //     await room.save();
+  
+  //     io.to(roomId).emit("receive_message", newMessage); // Отправляем новое сообщение в комнату
+  //     res.status(200).json({ message: "Файл успешно загружен", filePath });
+  //   } catch (err) {
+  //     console.error("Ошибка при загрузке файла:", err.message, err.stack);
+  //     res.status(500).json({ message: "Ошибка при загрузке файла" });
+  //   }
+  // });
+
+
+  socket.on("send_file", async (file) => {
+    console.log("Получено сообщение с файлом:", file); // Лог для полученного файла
+  
+    const { roomId, fileName, fileType, fileData } = file;
+  
+    // Создаем новый объект сообщения с файлом
+    const newMessage = {
+      sender: socket.id, // или username, если у вас есть
+      message: fileName,
+      fileType,
+      fileData, // двоичные данные файла
+      timestamp: new Date().toISOString(),
+    };
+  
     try {
-      const { roomId } = req.body; // Получаем идентификатор комнаты
-      const filePath = `/uploads/${req.file.filename}`; // Путь к загруженному файлу
-
-      // Находим комнату и добавляем файл в сообщения
+      // Найдите комнату и добавьте новое сообщение
       const room = await Room.findOne({ roomId });
-      if (!room) {
-        return res.status(404).json({ message: "Комната не найдена" });
+      
+      if (room) {
+        console.log("Комната найдена:", roomId); // Лог для найденной комнаты
+  
+        room.messages.push(newMessage);
+        await room.save();
+        console.log("Новое сообщение добавлено в комнату:", newMessage); // Лог для нового сообщения
+  
+        // Отправляем новое сообщение всем клиентам в комнате
+        io.to(roomId).emit("receive_message", {
+          id: room.roomId,
+          messages: room.messages,
+        });
+        console.log("Сообщение отправлено всем клиентам в комнате:", roomId); // Лог для отправки сообщения
+      } else {
+        console.error("Комната не найдена:", roomId); // Лог для ошибки комнаты
       }
-
-      const newMessage = {
-        sender,
-        message: `Файл загружен: ${filePath}`,
-        fileUrl: filePath,
-        timestamp: new Date(),
-      };
-
-      room.messages.push(newMessage);
-      await room.save();
-
-      io.to(roomId).emit("receive_message", newMessage); // Отправляем новое сообщение в комнату
-      res.status(200).json({ message: "Файл успешно загружен", filePath });
-    } catch (err) {
-      console.error("Ошибка при загрузке файла:", err);
-      res.status(500).json({ message: "Ошибка при загрузке файла" });
+    } catch (error) {
+      console.error("Ошибка при обработке отправки файла:", error); // Лог для ошибок
     }
   });
+  
+  
+  
 
   socket.on("get_archived_rooms", async ({ username }) => {
     try {
