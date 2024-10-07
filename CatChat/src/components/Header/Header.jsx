@@ -141,76 +141,82 @@ const Header = () => {
       <HeaderIconWrap>
         <HeaderIcon src={MainIcon} alt="UserImg" />
       </HeaderIconWrap>
-      <ChatsNameWrap>
-        <AllChatsName>All Chats</AllChatsName>
-      </ChatsNameWrap>
+      {pageLocation.pathname !== '/team' ? (
+        <ChatsNameWrap>
+          <AllChatsName>All Chats</AllChatsName>
+        </ChatsNameWrap>
+      ) : (
+        <AllChatsName>Team</AllChatsName>
+      )}
 
-      <HeaderNameWrap>
-        <HeaderName>
-          {currentChat ? currentChat?.clients?.username : ''}
-        </HeaderName>
+      {pageLocation.pathname !== '/team' && (
+        <HeaderNameWrap>
+          <HeaderName>
+            {currentChat ? currentChat?.clients?.username : ''}
+          </HeaderName>
 
-        {pageLocation.pathname !== '/archive' &&
-          (openSettings ? (
-            <ModalWindow ref={modalRef}>
-              {manager?.manager === null ? (
-                <SettingsStyle onClick={() => joinChat(uname)}>
-                  <ManagerIcon />
-                  Join Manager
-                </SettingsStyle>
-              ) : (
-                <>
-                  <SettingsStyle onClick={() => removeManager(uname)}>
+          {pageLocation.pathname == '/main' &&
+            (openSettings ? (
+              <ModalWindow ref={modalRef}>
+                {manager?.manager === null ? (
+                  <SettingsStyle onClick={() => joinChat(uname)}>
                     <ManagerIcon />
-                    Remove Manager
+                    Join Manager
                   </SettingsStyle>
-                </>
+                ) : (
+                  <>
+                    <SettingsStyle onClick={() => removeManager(uname)}>
+                      <ManagerIcon />
+                      Remove Manager
+                    </SettingsStyle>
+                  </>
+                )}
+                <SettingsStyle
+                  onClick={() => {
+                    openModal();
+                    dispatch(fetchManagers()); // Загружаем всех менеджеров
+                  }}
+                >
+                  <OpenModal /> Открыть модальное окно
+                </SettingsStyle>
+                <SettingsStyle onClick={() => handleDisconnectChat()}>
+                  <CloseChat />
+                  Отключить чат
+                </SettingsStyle>
+              </ModalWindow>
+            ) : null)}
+
+          <Modal show={showModal}>
+            <button onClick={closeModal}>X</button>
+            <h1>Выберите вариант</h1>
+
+            <select value={selectedOption} onChange={handleSelectChange}>
+              <option value="" disabled>
+                -- Выберите вариант --
+              </option>
+              {managers?.map(
+                man =>
+                  man.username !== uname && (
+                    <option key={man.username} value={man.username}>
+                      {man.username}
+                    </option>
+                  )
               )}
-              <SettingsStyle
-                onClick={() => {
-                  openModal();
-                  dispatch(fetchManagers()); // Загружаем всех менеджеров
-                }}
-              >
-                <OpenModal /> Открыть модальное окно
-              </SettingsStyle>
-              <SettingsStyle onClick={() => handleDisconnectChat()}>
-                <CloseChat />
-                Отключить чат
-              </SettingsStyle>
-            </ModalWindow>
-          ) : null)}
+            </select>
 
-        <Modal show={showModal}>
-          <button onClick={closeModal}>X</button>
-          <h1>Выберите вариант</h1>
-
-          <select value={selectedOption} onChange={handleSelectChange}>
-            <option value="" disabled>
-              -- Выберите вариант --
-            </option>
-            {managers?.map(
-              man =>
-                man.username !== uname && (
-                  <option key={man.username} value={man.username}>
-                    {man.username}
-                  </option>
-                )
+            {selectedOption && (
+              <div>
+                <h2>Вы выбрали: {selectedOption}</h2>
+                <button onClick={handleReplaceManager}>Заменить</button>
+              </div>
             )}
-          </select>
+          </Modal>
 
-          {selectedOption && (
-            <div>
-              <h2>Вы выбрали: {selectedOption}</h2>
-              <button onClick={handleReplaceManager}>Заменить</button>
-            </div>
+          {pageLocation.pathname == '/main' && (
+            <Settings onClick={handleOpenSetting} />
           )}
-        </Modal>
-
-        {pageLocation.pathname !== '/archive' && (
-          <Settings onClick={handleOpenSetting} />
-        )}
-      </HeaderNameWrap>
+        </HeaderNameWrap>
+      )}
     </HeaderConteiner>
   );
 };

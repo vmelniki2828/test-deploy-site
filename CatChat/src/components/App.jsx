@@ -13,6 +13,7 @@ import Header from './Header/Header';
 import WidgetIcon from './Widget/WidgetIcon/WidgetIcon';
 import axios from 'axios';
 import { socket } from 'services/API';
+import TeamPage from 'Pages/Team/TeamPage';
 
 const AuthPage = lazy(() => import('Pages/AuthPage/AuthPage'));
 const ChatsPage = lazy(() => import('Pages/Chats/ChatsPage'));
@@ -78,6 +79,14 @@ export const App = () => {
             element={
               <PrivateRoute>
                 <ArchivePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/team"
+            element={
+              <PrivateRoute>
+                <TeamPage />
               </PrivateRoute>
             }
           />
