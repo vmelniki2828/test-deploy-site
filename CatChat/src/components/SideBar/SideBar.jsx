@@ -62,6 +62,12 @@ const SideBar = () => {
               Tickets
             </NavLinkStyled>
           </ItemSideBar>
+          <ItemSideBar>
+            <NavLinkStyled to="/team">
+              <SideBarImg src={SideBarIcon} alt="SideBarIcon" />
+              Team
+            </NavLinkStyled>
+          </ItemSideBar>
         </ListSideBar>
       </ListConteiner>
       <EndConteiner>
