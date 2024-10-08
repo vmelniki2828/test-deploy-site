@@ -73,6 +73,7 @@ const Chat = () => {
       <ChatMessages>
         {chatMessages.map((mes, index) => (
           <ChatDiv key={index} isManager={mes.sender === uname}>
+            {console.log(mes)}
             <MessageWrap isManager={mes.sender === uname}>
               <UserImg
                 src={uPhoto || userPhoto}
@@ -86,6 +87,7 @@ const Chat = () => {
                     {new Date(mes.timestamp).toLocaleTimeString()}
                   </MessageTime>
                 </InfoWrap>
+                <img src={mes?.fileUrl} atl="dsad"/>
                 <MessageBox isManager={mes.sender === uname}>
                   <ChatText>{mes.message}</ChatText>
                 </MessageBox>
