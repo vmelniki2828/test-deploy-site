@@ -196,7 +196,7 @@ export const QuantityMembers = styled.p`
 `;
 
 export const GroupBlock = styled.div`
-  margin-right: 260px;
+  margin-right: 240px;
 `;
 
 export const StatInformationBlock = styled.div`

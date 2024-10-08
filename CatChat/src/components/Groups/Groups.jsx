@@ -32,8 +32,7 @@ const Groups = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openSideBar, setOpenSideBar] = useState(false);
   const modalRef = useRef(null);
-
-  console.log(openModal);
+  const sideBarRef = useRef(null);
 
   const toggleSideBar = () => {
     setOpenSideBar(prevState => !prevState);
@@ -44,13 +43,24 @@ const Groups = () => {
   };
 
   const handleClickOutside = event => {
-    if (modalRef.current && !modalRef.current.contains(event.target)) {
+    if (
+      openSideBar &&
+      sideBarRef.current &&
+      !sideBarRef.current.contains(event.target)
+    ) {
+      setOpenSideBar(false);
+    }
+    if (
+      openModal &&
+      modalRef.current &&
+      !modalRef.current.contains(event.target)
+    ) {
       setOpenModal(false);
     }
   };
 
   useEffect(() => {
-    if (openSideBar) {
+    if (openSideBar || openModal) {
       document.addEventListener('mousedown', handleClickOutside);
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -59,7 +69,7 @@ const Groups = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [openSideBar]);
+  }, [openSideBar, openModal]);
 
   return (
     <>
@@ -100,14 +110,16 @@ const Groups = () => {
           </List>
         </ListBlock>
       </GroupsConteiner>
+
       {openSideBar && (
-        <div ref={modalRef}>
+        <div ref={sideBarRef}>
           <GroupSideBar />
         </div>
       )}
+
       {openModal && (
         <div ref={modalRef}>
-          <GroupModal onClose={toggleModal}/>
+          <GroupModal onClose={toggleModal} />
         </div>
       )}
     </>
