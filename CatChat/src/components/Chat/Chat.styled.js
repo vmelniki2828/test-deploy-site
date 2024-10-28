@@ -120,3 +120,14 @@ export const TextName = styled.h2`
   margin: 0;
   padding-right: 5px;
 `;
+
+export const LoadingCon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  border: 1px solid #DFDAEB;
+  background-color: #EFE9FF;
+  height: 30px;
+  width: 60px;
+`;

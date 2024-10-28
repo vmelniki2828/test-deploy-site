@@ -14,9 +14,11 @@ import {
   MessageWrap,
   InfoWrap,
   TextName,
+  LoadingCon,
 } from './Chat.styled';
 import Vec from '../../images/Vector.png';
 import { useDispatch, useSelector } from 'react-redux';
+import { ThreeDots } from 'react-loader-spinner';
 import { selectUserUsername, selectUserPhoto } from '../../redux/selectors';
 import userPhoto from '../../images/photoexample.jpeg';
 import { socket } from '../../services/API';
@@ -28,7 +30,9 @@ const Chat = () => {
   const uPhoto = useSelector(selectUserPhoto);
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
-
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState(false);
+  let typingTimeout;
   const currentChat = useSelector(state => state.chat.currentChat);
 
   useEffect(() => {
@@ -62,6 +66,42 @@ const Chat = () => {
     }
   };
 
+  useEffect(() => {
+    // Обработка события "user_typing"
+    socket.on("user_typing", ({ roomId,username }) => {
+      setTypingUser(true);
+    });
+
+    // Обработка события "user_stopped_typing"
+    socket.on("user_stopped_typing", ({ roomId,username }) => {
+      setTypingUser(false);
+    });
+
+    return () => {
+      socket.off("user_typing");
+      socket.off("user_stopped_typing");
+    };
+  }, []);
+
+  const handleTyping = (e) => {
+    setMessage(e.target.value);
+  
+    // Если пользователь начинает печатать и событие "typing" еще не отправлено
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit("typing", { roomId: currentChat.roomId, username:uname });
+    }
+  
+    // Очищаем таймер для "stop_typing"
+    clearTimeout(typingTimeout);
+  
+    // Запускаем новый таймер на 2 секунды, после которого отправляется событие "stop_typing"
+    typingTimeout = setTimeout(() => {
+      setIsTyping(false);
+      socket.emit("stop_typing", { roomId: currentChat.roomId, username:uname });
+    }, 2000);
+  };
+
   const handleKeyPress = e => {
     if (e.key === 'Enter') {
       sendMessage();
@@ -73,7 +113,6 @@ const Chat = () => {
       <ChatMessages>
         {chatMessages.map((mes, index) => (
           <ChatDiv key={index} isManager={mes.sender === uname}>
-            {console.log(mes)}
             <MessageWrap isManager={mes.sender === uname}>
               <UserImg
                 src={uPhoto || userPhoto}
@@ -95,12 +134,22 @@ const Chat = () => {
             </MessageWrap>
           </ChatDiv>
         ))}
+          {typingUser && (<LoadingCon>
+          <ThreeDots
+            height="10"
+            width="30"
+            radius="9"
+            color="grey"
+            ariaLabel="three-dots-loading"
+            visible={true}
+          />
+          </LoadingCon>)}
       </ChatMessages>
 
       <InputWrap>
         <ChatInput
           value={message}
-          onChange={e => setMessage(e.target.value)}
+          onChange={handleTyping}
           onKeyDown={handleKeyPress}
           placeholder="Введите сообщение"
         />

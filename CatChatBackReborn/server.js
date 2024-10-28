@@ -263,6 +263,17 @@ io.on("connection", (socket) => {
     }
   });
 
+  io.on("connection", (socket) => {
+    socket.on("typing", ({ roomId, username }) => {
+      socket.to(roomId).emit("user_typing", { username });
+    });
+  
+    socket.on("stop_typing", ({ roomId, username }) => {
+      socket.to(roomId).emit("user_stopped_typing", { username });
+    });
+  });
+  
+
   socket.on("get_room_messages", async (roomId) => {
     try {
       const room = await Room.findOne({ roomId });
