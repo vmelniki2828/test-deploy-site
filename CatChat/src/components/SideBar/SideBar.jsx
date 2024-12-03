@@ -9,22 +9,17 @@ import {
   NavLinkStyled,
   SideBarImg,
   TimeConteiner,
+  LogOutBtn,
+  LogOutIcon,
+  EndConteiner,
 } from './SideBar.styled';
 import SideBarIcon from '../../images/UnionGrey.png';
+import { persistor } from '../../redux/store';
 
-const SideBar = ({ setChangePage }) => {
+const SideBar = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [open, setOpen] = useState(false);
 
   const location = useLocation();
-  const targetRoute = '/fraudPage';
-  const isOnTargetRoute = location.pathname === targetRoute;
-
-  const handleFraudClick = () => {
-    if (isOnTargetRoute) {
-      window.location.reload();
-    }
-  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -33,28 +28,17 @@ const SideBar = ({ setChangePage }) => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // const handleClickOutside = event => {
-  //   if (
-  //     menuRef.current &&
-  //     !menuRef.current.contains(event.target) &&
-  //     !event.target.closest('.modal')
-  //   ) {
-  //     setOpen(false);
-  //   }
-  // };
-  // useEffect(() => {
-  //   document.addEventListener('click', handleClickOutside);
-
-  //   return () => {
-  //     document.removeEventListener('click', handleClickOutside);
-  //   };
-  // }, []);
-
   const resolvedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const formattedTime = currentTime.toLocaleTimeString('default', {
     timeZone: resolvedTimeZone,
     timeStyle: 'short',
   });
+
+  const handleLogout = () => {
+    persistor.purge();
+    sessionStorage.clear();
+    window.location.reload();
+  };
 
   return (
     <SideBarConteiner>
@@ -78,9 +62,20 @@ const SideBar = ({ setChangePage }) => {
               Tickets
             </NavLinkStyled>
           </ItemSideBar>
+          <ItemSideBar>
+            <NavLinkStyled to="/team">
+              <SideBarImg src={SideBarIcon} alt="SideBarIcon" />
+              Team
+            </NavLinkStyled>
+          </ItemSideBar>
         </ListSideBar>
       </ListConteiner>
-      <TimeConteiner>{formattedTime}</TimeConteiner>
+      <EndConteiner>
+        <LogOutBtn onClick={handleLogout}>
+          <LogOutIcon />
+        </LogOutBtn>
+        <TimeConteiner>{formattedTime}</TimeConteiner>
+      </EndConteiner>
     </SideBarConteiner>
   );
 };

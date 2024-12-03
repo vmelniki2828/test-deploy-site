@@ -14,50 +14,51 @@ import {
   MessageWrap,
   InfoWrap,
   TextName,
+  LoadingCon,
 } from './Chat.styled';
 import Vec from '../../images/Vector.png';
 import { useDispatch, useSelector } from 'react-redux';
+import { ThreeDots } from 'react-loader-spinner';
 import { selectUserUsername, selectUserPhoto } from '../../redux/selectors';
 import userPhoto from '../../images/photoexample.jpeg';
 import { socket } from '../../services/API';
+import { fetchRooms } from '../../redux/Chat/chatActions';
 
-const Chat = ({ selectedChat }) => {
+const Chat = () => {
   const dispatch = useDispatch();
   const uname = useSelector(selectUserUsername);
   const uPhoto = useSelector(selectUserPhoto);
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState(selectedChat?.messages || []);
-  console.log(selectedChat);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState(false);
+  let typingTimeout;
+  const currentChat = useSelector(state => state.chat.currentChat);
+
   useEffect(() => {
-    if (selectedChat?.messages) {
-      setMessages(selectedChat.messages);
+    if (currentChat?.roomId) {
+      socket.emit('join_room', currentChat.roomId);
+      socket.emit('get_room_messages', currentChat.roomId); // Получаем сообщения при входе
+
+      const handleReceiveMessage = (info) => {
+        if (info.id === currentChat?.roomId) {
+          setChatMessages(info?.messages);
+          dispatch(fetchRooms(uname)); // Обновление списка чатов
+        }
+      };
+
+      socket.on('receive_message', handleReceiveMessage);
+
+      return () => {
+        socket.off('receive_message', handleReceiveMessage);
+      };
     }
-  }, [selectedChat]);
-
-  useEffect(() => {
-    socket.on('receive_message', message => {
-      console.log('Получено сообщение:', message);
-      setMessages(prevMessages => [...prevMessages, message]);
-    });
-
-    return () => {
-      socket.off('receive_message'); // Очистка обработчика при размонтировании
-    };
-  }, []);
-
-  useEffect(() => {
-    const storedMessages = localStorage.getItem('chatMessages');
-    if (storedMessages) {
-      const parsedMessages = JSON.parse(storedMessages);
-      // Установите сообщения в состояние Redux или локальное состояние
-      dispatch(setMessages(parsedMessages)); // Пример действия Redux
-    }
-  }, []);
+  }, [currentChat, dispatch, uname]);
 
   const sendMessage = () => {
     if (message.trim() !== '') {
       socket.emit('send_message', {
-        roomId: selectedChat.roomId,
+        roomId: currentChat.roomId,
         sender: uname,
         messageText: message,
       });
@@ -66,36 +67,58 @@ const Chat = ({ selectedChat }) => {
   };
 
   useEffect(() => {
-    // Обработка события отключения чата
-    socket.on('chat_disconnected', message => {
-      alert(message); // Сообщение об отключении
-      // Вы можете добавить логику для перехода на другой экран или очистки состояния чата
+    // Обработка события "user_typing"
+    socket.on("user_typing", ({ roomId,username }) => {
+      setTypingUser(true);
+    });
+
+    // Обработка события "user_stopped_typing"
+    socket.on("user_stopped_typing", ({ roomId,username }) => {
+      setTypingUser(false);
     });
 
     return () => {
-      socket.off('chat_disconnected');
+      socket.off("user_typing");
+      socket.off("user_stopped_typing");
     };
   }, []);
 
-  const handleDisconnectChat = () => {
-    const roomId = selectedChat.roomId; // Получите ID комнаты, которую нужно отключить
-    socket.emit('disconnect_chat', roomId);
+  const handleTyping = (e) => {
+    setMessage(e.target.value);
+  
+    // Если пользователь начинает печатать и событие "typing" еще не отправлено
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit("typing", { roomId: currentChat.roomId, username:uname });
+    }
+  
+    // Очищаем таймер для "stop_typing"
+    clearTimeout(typingTimeout);
+  
+    // Запускаем новый таймер на 2 секунды, после которого отправляется событие "stop_typing"
+    typingTimeout = setTimeout(() => {
+      setIsTyping(false);
+      socket.emit("stop_typing", { roomId: currentChat.roomId, username:uname });
+    }, 2000);
+  };
+
+  const handleKeyPress = e => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
   };
 
   return (
     <ChatContainer>
       <ChatMessages>
-        <button onClick={handleDisconnectChat}>Отключить чат</button>
-        {messages?.map((mes, index) => (
+        {chatMessages.map((mes, index) => (
           <ChatDiv key={index} isManager={mes.sender === uname}>
             <MessageWrap isManager={mes.sender === uname}>
-              {!uPhoto && <UserImg src={userPhoto} alt="UserImg"   isManager={mes.sender === uname}/>}
-              {uPhoto && (
-                <UserImg  isManager={mes.sender === uname}
-                  src={`http://${process.env.REACT_APP_BACKEND_URL}${uPhoto}`}
-                  alt="UserImg"
-                />
-              )}
+              <UserImg
+                src={uPhoto || userPhoto}
+                alt="UserImg"
+                isManager={mes.sender === uname}
+              />
               <div>
                 <InfoWrap>
                   <TextName>{mes.sender}</TextName>
@@ -103,7 +126,7 @@ const Chat = ({ selectedChat }) => {
                     {new Date(mes.timestamp).toLocaleTimeString()}
                   </MessageTime>
                 </InfoWrap>
-
+                <img src={mes?.fileUrl} atl="dsad"/>
                 <MessageBox isManager={mes.sender === uname}>
                   <ChatText>{mes.message}</ChatText>
                 </MessageBox>
@@ -111,21 +134,26 @@ const Chat = ({ selectedChat }) => {
             </MessageWrap>
           </ChatDiv>
         ))}
+          {typingUser && (<LoadingCon>
+          <ThreeDots
+            height="10"
+            width="30"
+            radius="9"
+            color="grey"
+            ariaLabel="three-dots-loading"
+            visible={true}
+          />
+          </LoadingCon>)}
       </ChatMessages>
 
       <InputWrap>
         <ChatInput
           value={message}
-          onChange={e => setMessage(e.target.value)}
+          onChange={handleTyping}
+          onKeyDown={handleKeyPress}
           placeholder="Введите сообщение"
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              sendMessage();  
-              e.preventDefault(); 
-            }
-          }}
         />
-        <SendButton onClick={sendMessage} >
+        <SendButton onClick={sendMessage}>
           Send
           <IconButton src={Vec} alt="Vec" />
         </SendButton>

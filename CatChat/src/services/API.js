@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-export const socket = io('https://chat.cat-tools.com', {
+export const socket = io('http://localhost:8000', {
   transports: ['websocket', 'polling'],
   withCredentials: true,
   reconnection: true, // Включает автоматическое восстановление соединения
@@ -13,7 +13,7 @@ export const getArchivedRooms = uname => {
   socket.emit('get_archived_rooms', { username: uname });
 };
 
-axios.defaults.baseURL = 'https://chat.cat-tools.com/api';
+axios.defaults.baseURL = 'http://localhost:8000/api';
 
 export const token = {
   set(token) {
@@ -30,7 +30,7 @@ export const loginFoo = async credentials => {
   return data;
 };
 export const getCurrentUser = async credentials => {
-  console.log(credentials)
+  console.log(credentials);
   const { data } = await axios.get('user', {
     headers: {
       Authorization: `Bearer ${credentials}`, // Передаем токен
@@ -71,6 +71,53 @@ export const getUserProfile = async token => {
       'Error fetching data:',
       error.response?.data || error.message
     );
+    throw error;
+  }
+};
+
+export const getManagers = async () => {
+  try {
+    const response = await axios.get('managers');
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при выполнении запроса:', error);
+    throw error;
+  }
+};
+
+export const getManager = async username => {
+  try {
+    const response = await axios.get(`managers/${username}`);
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при получении менеджера:', error);
+    throw error;
+  }
+};
+
+export const getRooms = async username => {
+  try {
+    const response = await axios.get(`rooms/${username}`);
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при получении комнат:', error);
+    throw error;
+  }
+};
+
+export const replaceManager = async (
+  roomId,
+  oldManagerUsername,
+  newManagerUsername
+) => {
+  try {
+    const response = await axios.put(`rooms/${roomId}/replace-manager`, {
+      oldManagerUsername,
+      newManagerUsername,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при замене менеджера:', error);
     throw error;
   }
 };

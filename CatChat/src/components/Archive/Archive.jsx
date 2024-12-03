@@ -12,6 +12,7 @@ import {
   MessageBox,
   InfoWrap,
   TextName,
+  TextItem,
 } from './Archive.styled';
 import userPhoto from '../../images/photoexample.jpeg';
 import { selectUserUsername, selectUserPhoto } from '../../redux/selectors';
@@ -85,10 +86,10 @@ const Archive = ({ selectedChat }) => {
               </ChatDiv>
             );
           })}
-          <p>End Time: {formattedEndTime}</p>
+          <TextItem>End Time: {formattedEndTime}</TextItem>
         </ChatMessages>
       ) : (
-        <p>Выберите чат для отображения.</p>
+        <TextItem>Выберите чат для отображения.</TextItem>
       )}
     </ArchiveContainer>
   );

@@ -13,63 +13,25 @@ import Header from './Header/Header';
 import WidgetIcon from './Widget/WidgetIcon/WidgetIcon';
 import axios from 'axios';
 import { socket } from 'services/API';
+import TeamPage from 'Pages/Team/TeamPage';
 
 const AuthPage = lazy(() => import('Pages/AuthPage/AuthPage'));
 const ChatsPage = lazy(() => import('Pages/Chats/ChatsPage'));
 const ArchivePage = lazy(() => import('Pages/Archive/ArchivePage'));
 
 export const App = () => {
-  const dispatch = useDispatch();
   const location = useLocation();
-  const token = useSelector(selectAccessToken);
   const { isRefreshing } = useAuth();
-  const [changePage, setChangePage] = useState(true);
-  const [messages, setMessages] = useState({});
 
-  const uname = useSelector(selectUserUsername);
-  const [chats, setChats] = useState([]);
-
-  const handleSearch = async () => {
-    try {
-      const response = await axios.get(
-        `https://chat.cat-tools.com/api/rooms/${uname}`
-      );
-      setChats(response.data);
-    } catch (error) {
-      console.error('Ошибка при выполнении запроса:', error);
-    }
-  };
-
-  useEffect(() => {
-    handleSearch();
-
-    // Прослушивание события "newChat" и обновление списка чатов
-    socket.on('newChat', (newRoom) => {
-      // Only add to the chat list if the manager is part of the room
-      if (newRoom.managers.some(manager => manager.username === uname)) {
-        setChats(prevChats => [...prevChats, newRoom]);
-      }
-    });
-
-    socket.on('update_chats', () => {
-      handleSearch();
-    });
-
-    // Очистка слушателя при размонтировании компонента
-    return () => {
-      socket.off('newChat');
-      socket.off('update_chats');
-    };
-  }, []);
-  
+ 
   return isRefreshing ? (
     <b>Refreshing user...</b>
   ) : (
     <>
       {location.pathname === '/login' ? null : (
         <>
-          <Header />
-          {changePage && <SideBar setChangePage={setChangePage} />}
+          <Header/>
+          <SideBar />
         </>
       )}
       <Suspense
@@ -92,7 +54,7 @@ export const App = () => {
             path="/main"
             element={
               <PrivateRoute>
-                <ChatsPage chats={chats} />
+                <ChatsPage/>
               </PrivateRoute>
             }
           />
@@ -117,6 +79,14 @@ export const App = () => {
             element={
               <PrivateRoute>
                 <ArchivePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/team"
+            element={
+              <PrivateRoute>
+                <TeamPage />
               </PrivateRoute>
             }
           />
